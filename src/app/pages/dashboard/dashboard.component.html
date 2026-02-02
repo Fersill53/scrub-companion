@@ -1,4 +1,70 @@
 <section class="wrap">
-  <h1 class="title">Dashboard</h1>
-  <p class="sub">Recent cards • playbooks • study next • checkoffs</p>
+  <header class="header">
+    <div>
+      <h1 class="title">Dashboard</h1>
+      <p class="sub">Quick access to preference cards, playbooks, setup, and study.</p>
+    </div>
+
+    <div class="header__actions">
+      <a mat-raised-button color="primary" routerLink="/cards">
+        <mat-icon>assignment</mat-icon>
+        Preference Cards
+      </a>
+
+      <a mat-stroked-button routerLink="/search">
+        <mat-icon>search</mat-icon>
+        Smart Search
+      </a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <mat-card class="card">
+      <div class="card__title">Preference Cards</div>
+      <div class="card__sub">Create pick lists and personal setup notes.</div>
+      <div class="card__actions">
+        <a mat-button routerLink="/cards/new">
+          <mat-icon>add</mat-icon>
+          New Card
+        </a>
+        <a mat-button routerLink="/cards">
+          <mat-icon>visibility</mat-icon>
+          View All
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="card__title">Playbooks</div>
+      <div class="card__sub">Procedure flow + what to have ready by phase.</div>
+      <div class="card__actions">
+        <a mat-button routerLink="/playbooks">
+          <mat-icon>menu_book</mat-icon>
+          Open
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="card__title">OR Setup Builder</div>
+      <div class="card__sub">Checklist + visual setup plans (coming next).</div>
+      <div class="card__actions">
+        <a mat-button routerLink="/setup">
+          <mat-icon>view_quilt</mat-icon>
+          Open
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="card__title">Study Center</div>
+      <div class="card__sub">Flashcards, quizzes, microlearning, checkoffs.</div>
+      <div class="card__actions">
+        <a mat-button routerLink="/study">
+          <mat-icon>school</mat-icon>
+          Open
+        </a>
+      </div>
+    </mat-card>
+  </div>
 </section>
