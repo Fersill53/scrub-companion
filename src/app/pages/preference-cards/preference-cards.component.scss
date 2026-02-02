@@ -1,0 +1,122 @@
+.wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__left {
+    display: grid;
+    gap: 4px;
+    min-width: 260px;
+  }
+
+  &__right {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.sub {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.searchCard {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.searchField {
+  width: 100%;
+}
+
+.countRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.countText {
+  opacity: 0.85;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.card {
+  padding: 12px;
+}
+
+.cardTop {
+  display: grid;
+  gap: 4px;
+}
+
+.cardTitle {
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  opacity: 0.85;
+  flex-wrap: wrap;
+}
+
+.dot {
+  opacity: 0.6;
+}
+
+.chips {
+  margin-top: 10px;
+}
+
+.divider {
+  margin: 12px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.empty {
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+
+  &__title {
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  &__sub {
+    opacity: 0.85;
+  }
+}

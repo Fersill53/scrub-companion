@@ -1,0 +1,118 @@
+<section class="wrap">
+  <header class="header">
+    <div class="header__left">
+      <h1 class="title">Preference Cards</h1>
+      <p class="sub">
+        Build personal pick lists, setup notes, and “surgeon quirks” you can rely on.
+      </p>
+    </div>
+
+    <div class="header__right">
+      <a mat-raised-button color="primary" routerLink="/cards/new">
+        <mat-icon>add</mat-icon>
+        New Card
+      </a>
+    </div>
+  </header>
+
+  <mat-card class="searchCard">
+    <mat-form-field appearance="outline" class="searchField">
+      <mat-label>Search</mat-label>
+      <input
+        matInput
+        [value]="query()"
+        (input)="query.set(($any($event.target).value as string) ?? '')"
+        placeholder="Procedure, surgeon, specialty, tags…"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <div class="countRow">
+      <div class="countText">
+        Showing <b>{{ filtered().length }}</b> of <b>{{ cards().length }}</b>
+      </div>
+      <button mat-button type="button" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </mat-card>
+
+  <div class="grid">
+    @for (card of filtered(); track card.id) {
+      <mat-card class="card">
+        <div class="cardTop">
+          <div class="cardTitle">{{ card.title || '(Untitled Card)' }}</div>
+
+          <div class="cardMeta">
+            <span>{{ card.specialty }}</span>
+            <span class="dot">•</span>
+            <span>{{ card.procedure || 'Procedure not set' }}</span>
+          </div>
+
+          @if (card.surgeon) {
+            <div class="cardMeta">{{ card.surgeon }}</div>
+          }
+
+          @if (card.facility) {
+            <div class="cardMeta">{{ card.facility }}</div>
+          }
+        </div>
+
+        @if (card.tags?.length) {
+          <mat-chip-set class="chips">
+            @for (t of card.tags; track t) {
+              <mat-chip>{{ t }}</mat-chip>
+            }
+          </mat-chip-set>
+        }
+
+        <mat-divider class="divider"></mat-divider>
+
+        <div class="actions">
+          <a mat-button [routerLink]="['/cards', card.id]">
+            <mat-icon>visibility</mat-icon>
+            View
+          </a>
+
+          <a mat-button [routerLink]="['/cards', card.id, 'edit']">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </a>
+
+          <a mat-button [routerLink]="['/cards', card.id, 'print']">
+            <mat-icon>print</mat-icon>
+            Print
+          </a>
+
+          <span class="spacer"></span>
+
+          <button mat-button type="button" (click)="deleteCard(card.id)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </mat-card>
+    } @empty {
+      <mat-card class="empty">
+        <div class="empty__title">No preference cards yet</div>
+        <div class="empty__sub">
+          Create your first card and start building a personal library you can trust.
+        </div>
+
+        <a mat-raised-button color="primary" routerLink="/cards/new">
+          <mat-icon>add</mat-icon>
+          New Card
+        </a>
+      </mat-card>
+    }
+  </div>
+</section>
