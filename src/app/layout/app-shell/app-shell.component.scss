@@ -1,0 +1,66 @@
+.shell {
+  height: 100vh;
+}
+
+.shell__sidenav {
+  width: 280px;
+  padding: 12px 8px;
+}
+
+.shell__content {
+  height: 100vh;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+  }
+
+  &__title {
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  &__sub {
+    opacity: 0.75;
+    font-size: 12px;
+  }
+}
+
+.shell__footer {
+  padding: 12px;
+  opacity: 0.7;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  &__title {
+    margin-left: 12px;
+    font-weight: 600;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+}
+
+.page {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* This class is applied via routerLinkActive, scoped to this component */
+.is-active {
+  font-weight: 600;
+}
