@@ -5,8 +5,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 import { PreferenceCardsComponent } from './pages/preference-cards/preference-cards.component';
 import { PreferenceCardEditorComponent } from './pages/preference-cards/editor/preference-card-editor/preference-card-editor.component';
-import { PreferenceCardViewComponent } from './pages/preference-cards/view/preference-card-view.component';
-import { PreferenceCardPrintComponent } from './pages/preference-cards/print/preference-card-print.component';
+import { PreferenceCardViewComponent } from './pages/preference-cards/view/preference-card-view/preference-card-view.component';
+import { PreferenceCardPrintComponent } from './pages/preference-cards/print/preference-card-print/preference-card-print.component';
 
 import { PlaybooksComponent } from './pages/playbooks/playbooks.component';
 import { SetupBuilderComponent } from './pages/setup-builder/setup-builder.component';

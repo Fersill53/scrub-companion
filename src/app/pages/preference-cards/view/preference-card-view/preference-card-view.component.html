@@ -1,0 +1,151 @@
+@if (card(); as c) {
+  <section class="wrap">
+    <header class="header">
+      <div class="header__left">
+        <h1 class="title">{{ c.title || '(Untitled Card)' }}</h1>
+
+        <div class="meta">
+          <span>{{ c.specialty }}</span>
+          <span class="dot">•</span>
+          <span>{{ c.procedure }}</span>
+
+          @if (c.surgeon) {
+            <span class="dot">•</span>
+            <span>{{ c.surgeon }}</span>
+          }
+
+          @if (c.facility) {
+            <span class="dot">•</span>
+            <span>{{ c.facility }}</span>
+          }
+        </div>
+
+        @if (c.tags?.length) {
+          <mat-chip-set class="chips">
+            @for (t of c.tags; track t) {
+              <mat-chip>{{ t }}</mat-chip>
+            }
+          </mat-chip-set>
+        }
+      </div>
+
+      <div class="header__actions">
+        <a mat-button routerLink="/cards">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </a>
+
+        <a mat-raised-button color="primary" [routerLink]="['/cards', c.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </a>
+
+        <a mat-stroked-button [routerLink]="['/cards', c.id, 'print']">
+          <mat-icon>print</mat-icon>
+          Print
+        </a>
+      </div>
+    </header>
+
+    <mat-card class="section">
+      <div class="section__title">Setup</div>
+
+      <div class="two">
+        <div class="block">
+          <div class="label">Positioning</div>
+          <div class="text">{{ c.positioning || '—' }}</div>
+        </div>
+
+        <div class="block">
+          <div class="label">Prep / Drape</div>
+          <div class="text">{{ c.prepDrape || '—' }}</div>
+        </div>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="label">Equipment</div>
+      @if (c.equipment?.length) {
+        <ul class="list">
+          @for (i of c.equipment; track $index) {
+            <li class="list__item">
+              <span class="name">{{ i.name }}</span>
+              @if (i.qty) { <span class="qty">×{{ i.qty }}</span> }
+              @if (i.notes) { <span class="notes">— {{ i.notes }}</span> }
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="muted">—</div>
+      }
+    </mat-card>
+
+    <mat-card class="section">
+      <div class="section__title">Pick List</div>
+
+      <div class="three">
+        <div class="block">
+          <div class="label">Instruments</div>
+          @if (c.instruments?.length) {
+            <ul class="list">
+              @for (i of c.instruments; track $index) {
+                <li class="list__item">
+                  <span class="name">{{ i.name }}</span>
+                  @if (i.qty) { <span class="qty">×{{ i.qty }}</span> }
+                  @if (i.notes) { <span class="notes">— {{ i.notes }}</span> }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="muted">—</div>
+          }
+        </div>
+
+        <div class="block">
+          <div class="label">Supplies</div>
+          @if (c.supplies?.length) {
+            <ul class="list">
+              @for (i of c.supplies; track $index) {
+                <li class="list__item">
+                  <span class="name">{{ i.name }}</span>
+                  @if (i.qty) { <span class="qty">×{{ i.qty }}</span> }
+                  @if (i.notes) { <span class="notes">— {{ i.notes }}</span> }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="muted">—</div>
+          }
+        </div>
+
+        <div class="block">
+          <div class="label">Sutures</div>
+          @if (c.sutures?.length) {
+            <ul class="list">
+              @for (i of c.sutures; track $index) {
+                <li class="list__item">
+                  <span class="name">{{ i.name }}</span>
+                  @if (i.qty) { <span class="qty">×{{ i.qty }}</span> }
+                  @if (i.notes) { <span class="notes">— {{ i.notes }}</span> }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="muted">—</div>
+          }
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="section">
+      <div class="section__title">Pearls / Gotchas</div>
+      <div class="text">{{ c.pearls || '—' }}</div>
+    </mat-card>
+
+    <div class="footerMeta">
+      <span>Created: {{ c.createdAt | date:'medium' }}</span>
+      <span class="dot">•</span>
+      <span>Updated: {{ c.updatedAt | date:'medium' }}</span>
+    </div>
+  </section>
+}

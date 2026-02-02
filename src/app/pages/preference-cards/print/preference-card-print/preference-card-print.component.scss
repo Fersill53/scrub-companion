@@ -1,0 +1,99 @@
+.wrap {
+  display: grid;
+  gap: 12px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.sheet {
+  padding: 12px;
+}
+
+.sheetHeader {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.h1 {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.meta {
+  opacity: 0.85;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.box {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 10px;
+
+  &__title {
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.subhead {
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.line {
+  margin: 6px 0;
+}
+
+.list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.pre {
+  white-space: pre-wrap;
+}
+
+.foot {
+  margin-top: 10px;
+  opacity: 0.75;
+  font-size: 12px;
+}
+
+/* Print-only rules scoped to THIS component */
+@media print {
+  .noPrint {
+    display: none !important;
+  }
+
+  .sheet {
+    padding: 0;
+  }
+
+  .box {
+    border-color: #000;
+  }
+}

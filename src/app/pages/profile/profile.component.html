@@ -1,0 +1,90 @@
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Profile</h1>
+      <p class="sub">Backup your data and manage local settings.</p>
+    </div>
+
+    <div class="header__actions">
+      <a mat-button routerLink="/">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <mat-card class="card">
+      <div class="card__title">App</div>
+      <div class="row">
+        <div class="label">Name</div>
+        <div class="value">{{ appName }}</div>
+      </div>
+      <div class="row">
+        <div class="label">Version</div>
+        <div class="value">{{ versionLabel }}</div>
+      </div>
+      <mat-divider class="divider"></mat-divider>
+      <div class="row">
+        <div class="label">Preference Cards</div>
+        <div class="value"><b>{{ cardCount() }}</b> saved</div>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="card__title">Backup & Restore</div>
+      <p class="help">
+        Your data is stored locally in your browser. Export a backup before switching devices or clearing cache.
+      </p>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="button" (click)="exportPreferenceCards()">
+          <mat-icon>download</mat-icon>
+          Export Preference Cards
+        </button>
+      </div>
+
+      @if (lastBackupName()) {
+        <div class="hintRow">
+          Last export: <b>{{ lastBackupName() }}</b>
+        </div>
+      }
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="importRow">
+        <mat-form-field appearance="outline" class="fileField">
+          <mat-label>Import backup (.json)</mat-label>
+          <input
+            matInput
+            type="file"
+            accept="application/json"
+            (change)="importPreferenceCardsFromFile(($any($event.target).files?.[0]) ?? null)"
+          />
+        </mat-form-field>
+      </div>
+
+      @if (lastImportedName()) {
+        <div class="hintRow">
+          Last import: <b>{{ lastImportedName() }}</b>
+        </div>
+      }
+
+      <p class="note">
+        Import will overwrite your current saved preference cards on this device.
+      </p>
+    </mat-card>
+
+    <mat-card class="card danger">
+      <div class="card__title">Danger Zone</div>
+      <p class="help">
+        This removes all preference cards from <b>this device/browser</b>. It cannot be undone unless you exported a backup.
+      </p>
+
+      <button mat-stroked-button type="button" (click)="clearAllPreferenceCards()">
+        <mat-icon>delete_forever</mat-icon>
+        Clear All Preference Cards
+      </button>
+    </mat-card>
+  </div>
+</section>

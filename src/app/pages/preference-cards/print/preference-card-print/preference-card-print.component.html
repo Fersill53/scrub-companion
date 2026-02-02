@@ -1,0 +1,104 @@
+@if (card(); as c) {
+  <section class="wrap">
+    <header class="toolbar noPrint">
+      <a mat-button [routerLink]="['/cards', c.id]">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </a>
+
+      <span class="spacer"></span>
+
+      <button mat-raised-button color="primary" type="button" (click)="print()">
+        <mat-icon>print</mat-icon>
+        Print
+      </button>
+    </header>
+
+    <div class="sheet">
+      <div class="sheetHeader">
+        <div class="h1">{{ c.title || '(Untitled Card)' }}</div>
+        <div class="meta">
+          <span>{{ c.specialty }}</span> • <span>{{ c.procedure }}</span>
+          @if (c.surgeon) { • <span>{{ c.surgeon }}</span> }
+          @if (c.facility) { • <span>{{ c.facility }}</span> }
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="box">
+          <div class="box__title">Setup</div>
+
+          <div class="line"><b>Positioning:</b> {{ c.positioning || '—' }}</div>
+          <div class="line"><b>Prep/Drape:</b> {{ c.prepDrape || '—' }}</div>
+
+          <div class="subhead">Equipment</div>
+          @if (c.equipment?.length) {
+            <ul class="list">
+              @for (i of c.equipment; track $index) {
+                <li>
+                  {{ i.name }}@if (i.qty) { ×{{ i.qty }} }@if (i.notes) { — {{ i.notes }} }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div>—</div>
+          }
+        </div>
+
+        <div class="box">
+          <div class="box__title">Instruments</div>
+          @if (c.instruments?.length) {
+            <ul class="list">
+              @for (i of c.instruments; track $index) {
+                <li>
+                  {{ i.name }}@if (i.qty) { ×{{ i.qty }} }@if (i.notes) { — {{ i.notes }} }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div>—</div>
+          }
+        </div>
+
+        <div class="box">
+          <div class="box__title">Supplies</div>
+          @if (c.supplies?.length) {
+            <ul class="list">
+              @for (i of c.supplies; track $index) {
+                <li>
+                  {{ i.name }}@if (i.qty) { ×{{ i.qty }} }@if (i.notes) { — {{ i.notes }} }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div>—</div>
+          }
+        </div>
+
+        <div class="box">
+          <div class="box__title">Sutures</div>
+          @if (c.sutures?.length) {
+            <ul class="list">
+              @for (i of c.sutures; track $index) {
+                <li>
+                  {{ i.name }}@if (i.qty) { ×{{ i.qty }} }@if (i.notes) { — {{ i.notes }} }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div>—</div>
+          }
+        </div>
+
+        <div class="box box--full">
+          <div class="box__title">Pearls / Gotchas</div>
+          <div class="pre">{{ c.pearls || '—' }}</div>
+        </div>
+      </div>
+
+      <div class="foot">
+        Updated: {{ c.updatedAt | date:'medium' }}
+      </div>
+    </div>
+  </section>
+}

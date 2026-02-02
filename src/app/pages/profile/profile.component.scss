@@ -1,0 +1,102 @@
+.wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.sub {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.card {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+
+  &__title {
+    font-weight: 900;
+    font-size: 16px;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+.value {
+  opacity: 0.9;
+}
+
+.divider {
+  margin: 8px 0;
+}
+
+.help {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hintRow {
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.importRow {
+  display: grid;
+  gap: 10px;
+}
+
+.fileField {
+  width: 100%;
+}
+
+.note {
+  margin: 0;
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.danger {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
