@@ -4,7 +4,7 @@ import { AppShellComponent } from './layout/app-shell/app-shell.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 import { PreferenceCardsComponent } from './pages/preference-cards/preference-cards.component';
-import { PreferenceCardEditorComponent } from './pages/preference-cards/editor/preference-card-editor.component';
+import { PreferenceCardEditorComponent } from './pages/preference-cards/editor/preference-card-editor/preference-card-editor.component';
 import { PreferenceCardViewComponent } from './pages/preference-cards/view/preference-card-view.component';
 import { PreferenceCardPrintComponent } from './pages/preference-cards/print/preference-card-print.component';
 

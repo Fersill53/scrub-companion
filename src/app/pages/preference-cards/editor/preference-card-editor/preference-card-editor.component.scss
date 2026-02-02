@@ -1,0 +1,141 @@
+.wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.sub {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.card {
+  padding: 12px;
+}
+
+.section {
+  display: grid;
+  gap: 14px;
+  padding: 12px 4px;
+}
+
+.row {
+  display: grid;
+  gap: 12px;
+
+  &--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .row--2,
+  .row--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tagbox {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+
+  &__field {
+    flex: 1;
+  }
+}
+
+.chips {
+  margin-top: 6px;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  &__title {
+    font-weight: 800;
+    font-size: 16px;
+  }
+}
+
+.items {
+  display: grid;
+  gap: 10px;
+}
+
+.itemRow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 2fr 110px 2fr 44px;
+  align-items: start;
+
+  &__name {
+    min-width: 0;
+  }
+  &__qty {
+    min-width: 0;
+  }
+  &__notes {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .itemRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.split {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.block {
+  display: grid;
+  gap: 10px;
+}
+
+.nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  &--between {
+    justify-content: space-between;
+  }
+}
