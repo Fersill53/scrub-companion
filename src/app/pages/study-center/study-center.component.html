@@ -1,0 +1,159 @@
+<section class="wrap">
+  <header class="header">
+    <div class="header__left">
+      <h1 class="title">Study Center</h1>
+      <p class="sub">Flashcards, quizzes, microlearning, and checkoffs — built for scrub techs.</p>
+    </div>
+
+    <div class="header__actions">
+      <a mat-button routerLink="/">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+
+      <button mat-stroked-button type="button" (click)="resetStudyProgress()">
+        <mat-icon>restart_alt</mat-icon>
+        Reset Progress
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <mat-card class="card">
+      <div class="card__title">Continue</div>
+      <div class="continueRow">
+        <div class="continueRow__text">
+          <div class="label">Last module</div>
+          <div class="value">{{ lastModuleLabel() }}</div>
+        </div>
+
+        <a mat-raised-button color="primary" routerLink="/study/flashcards" (click)="markOpened('flashcards')">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </a>
+      </div>
+
+      <div class="hint">
+        Tip: For faster learning, do 5–10 minutes daily — little and often beats cramming.
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="card__title">Quick Stats</div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat__num">{{ stats().flashcardsReviewed }}</div>
+          <div class="stat__label">Flashcards reviewed</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat__num">{{ stats().quizAttempts }}</div>
+          <div class="stat__label">Quiz attempts</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat__num">{{ stats().microLessonsCompleted }}</div>
+          <div class="stat__label">Micro-lessons completed</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat__num">{{ stats().checkoffsCompleted }}</div>
+          <div class="stat__label">Checkoffs completed</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="cardTop">
+        <div class="cardTop__left">
+          <div class="card__title">Flashcards</div>
+          <div class="desc">Instruments, anatomy, steps, meds, positioning, and more.</div>
+        </div>
+        <mat-icon class="icon">style</mat-icon>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="actions">
+        <a mat-raised-button color="primary" routerLink="/study/flashcards" (click)="markOpened('flashcards')">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </a>
+        <a mat-button routerLink="/study/flashcards/manage" (click)="markOpened('flashcards')">
+          <mat-icon>edit</mat-icon>
+          Manage decks
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="cardTop">
+        <div class="cardTop__left">
+          <div class="card__title">Quiz</div>
+          <div class="desc">Timed or untimed quizzes from your decks.</div>
+        </div>
+        <mat-icon class="icon">quiz</mat-icon>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="actions">
+        <a mat-raised-button color="primary" routerLink="/study/quiz" (click)="markOpened('quiz')">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </a>
+        <a mat-button routerLink="/study/quiz/settings" (click)="markOpened('quiz')">
+          <mat-icon>tune</mat-icon>
+          Settings
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="cardTop">
+        <div class="cardTop__left">
+          <div class="card__title">Microlearning</div>
+          <div class="desc">Short lessons + one quick check question.</div>
+        </div>
+        <mat-icon class="icon">bolt</mat-icon>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="actions">
+        <a mat-raised-button color="primary" routerLink="/study/microlearning" (click)="markOpened('microlearning')">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </a>
+        <a mat-button routerLink="/study/microlearning/library" (click)="markOpened('microlearning')">
+          <mat-icon>library_books</mat-icon>
+          Library
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="card">
+      <div class="cardTop">
+        <div class="cardTop__left">
+          <div class="card__title">Checkoffs</div>
+          <div class="desc">Skills lists + sign-off style checklists for self practice.</div>
+        </div>
+        <mat-icon class="icon">task_alt</mat-icon>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="actions">
+        <a mat-raised-button color="primary" routerLink="/study/checkoffs" (click)="markOpened('checkoffs')">
+          <mat-icon>play_arrow</mat-icon>
+          Start
+        </a>
+        <a mat-button routerLink="/study/checkoffs/manage" (click)="markOpened('checkoffs')">
+          <mat-icon>edit</mat-icon>
+          Manage
+        </a>
+      </div>
+    </mat-card>
+  </div>
+</section>

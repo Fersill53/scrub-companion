@@ -1,0 +1,151 @@
+<section class="wrap">
+  <header class="header">
+    <div class="header__left">
+      <h1 class="title">Smart Search</h1>
+      <p class="sub">Search preference cards, playbooks, and setups — instantly, locally.</p>
+    </div>
+
+    <div class="header__actions">
+      <a mat-button routerLink="/">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+
+      <button mat-stroked-button type="button" (click)="refreshFromStorage()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="card">
+    <div class="searchRow">
+      <mat-form-field appearance="outline" class="searchField">
+        <mat-label>Search</mat-label>
+        <input
+          matInput
+          [value]="query()"
+          (input)="query.set(($any($event.target).value as string) ?? '')"
+          placeholder="Try: ‘clip applier’, ‘tka’, ‘prep’, ‘closing count’…"
+        />
+        <button mat-icon-button matSuffix type="button" (click)="clearQuery()" aria-label="Clear">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <div class="filters">
+      <button
+        mat-stroked-button
+        type="button"
+        class="filterBtn"
+        [class.active]="isKindActive('prefcard')"
+        (click)="toggleKind('prefcard')"
+      >
+        <mat-icon>assignment</mat-icon>
+        Preference Cards ({{ totalCounts().prefcard }})
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="filterBtn"
+        [class.active]="isKindActive('playbook')"
+        (click)="toggleKind('playbook')"
+      >
+        <mat-icon>menu_book</mat-icon>
+        Playbooks ({{ totalCounts().playbook }})
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="filterBtn"
+        [class.active]="isKindActive('setup')"
+        (click)="toggleKind('setup')"
+      >
+        <mat-icon>view_quilt</mat-icon>
+        Setups ({{ totalCounts().setup }})
+      </button>
+    </div>
+
+    <mat-divider class="divider"></mat-divider>
+
+    <div class="summary">
+      <div class="count">{{ resultCount() }} result(s)</div>
+      @if (!query().trim()) {
+        <div class="hint">No query yet — showing a handful of your most recent items.</div>
+      }
+    </div>
+
+    <div class="results">
+      @for (r of results(); track r.kind + ':' + r.id) {
+        <mat-card class="result">
+          <div class="resultTop">
+            <div class="resultTop__left">
+              <div class="kind">
+                <mat-icon class="kind__icon">{{ iconForKind(r.kind) }}</mat-icon>
+                <span class="kind__label">{{ labelForKind(r.kind) }}</span>
+              </div>
+
+              <div class="rTitle">{{ r.title }}</div>
+              <div class="rSub">{{ r.subtitle }}</div>
+
+              @if (r.tags?.length) {
+                <mat-chip-set class="chips">
+                  @for (t of r.tags; track t) {
+                    <mat-chip>{{ t }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
+
+              @if (r.matchedIn?.length) {
+                <div class="matched">
+                  Matched: {{ r.matchedIn.join(', ') }}
+                </div>
+              }
+
+              @if (r.snippet) {
+                <div class="snippet">{{ r.snippet }}</div>
+              }
+            </div>
+
+            <div class="resultTop__actions">
+              @if (r.kind === 'prefcard') {
+                <a mat-raised-button color="primary" [routerLink]="['/cards', r.id]">
+                  <mat-icon>open_in_new</mat-icon>
+                  Open
+                </a>
+                <a mat-stroked-button [routerLink]="['/cards', r.id, 'print']">
+                  <mat-icon>print</mat-icon>
+                  Print
+                </a>
+              }
+
+              @if (r.kind === 'setup') {
+                <a mat-raised-button color="primary" [routerLink]="['/setup']" [queryParams]="{ id: r.id }">
+                  <mat-icon>open_in_new</mat-icon>
+                  Open
+                </a>
+              }
+
+              @if (r.kind === 'playbook') {
+                <a mat-raised-button color="primary" [routerLink]="['/playbooks']" [queryParams]="{ id: r.id }">
+                  <mat-icon>open_in_new</mat-icon>
+                  Open
+                </a>
+              }
+            </div>
+          </div>
+        </mat-card>
+      }
+
+      @if (query().trim() && resultCount() === 0) {
+        <div class="empty">
+          <div class="empty__title">No matches</div>
+          <div class="empty__sub">Try a shorter keyword (e.g. “clip”, “tka”, “prep”, “closing”).</div>
+        </div>
+      }
+    </div>
+  </mat-card>
+</section>

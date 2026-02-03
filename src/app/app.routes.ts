@@ -10,8 +10,8 @@ import { PreferenceCardPrintComponent } from './pages/preference-cards/print/pre
 
 import { PlaybooksComponent } from './pages/playbooks/playbooks.component';
 import { SetupBuilderComponent } from './pages/setup-builder/setup-builder.component';
-import { StudyCenterComponent } from './pages/study-center/study-center.component';
-import { SmartSearchComponent } from './pages/smart-search/smart-search.component';
+import { StudyComponent } from './pages/study-center/study-center.component';
+import { SearchComponent } from './pages/smart-search/smart-search.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 
 export const routes: Routes = [
@@ -31,8 +31,8 @@ export const routes: Routes = [
       // Other sections
       { path: 'playbooks', component: PlaybooksComponent, title: 'Playbooks' },
       { path: 'setup', component: SetupBuilderComponent, title: 'OR Setup Builder' },
-      { path: 'study', component: StudyCenterComponent, title: 'Study Center' },
-      { path: 'search', component: SmartSearchComponent, title: 'Smart Search' },
+      { path: 'study', component: StudyComponent, title: 'Study Center' },
+      { path: 'search', component: SearchComponent, title: 'Smart Search' },
       { path: 'profile', component: ProfileComponent, title: 'Profile' },
 
       { path: '**', redirectTo: '' },
