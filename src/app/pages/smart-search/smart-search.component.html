@@ -25,7 +25,7 @@
         <input
           matInput
           [value]="query()"
-          (input)="query.set(($any($event.target).value as string) ?? '')"
+          (input)="query.set($any($event.target).value || '')"
           placeholder="Try: ‘clip applier’, ‘tka’, ‘prep’, ‘closing count’…"
         />
         <button mat-icon-button matSuffix type="button" (click)="clearQuery()" aria-label="Clear">

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { DatePipe } from '@angular/common';
 
 import { PreferenceCard } from '../../data/preference-card.model';
 import { PreferenceCardStore } from '../../data/preference-card-store.service';
@@ -10,7 +11,7 @@ import { PreferenceCardStore } from '../../data/preference-card-store.service';
 @Component({
   selector: 'app-preference-card-print',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, DatePipe],
   templateUrl: './preference-card-print.component.html',
   styleUrl: './preference-card-print.component.scss',
 })

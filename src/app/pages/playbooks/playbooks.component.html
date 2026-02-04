@@ -48,7 +48,7 @@
         <input
           matInput
           [value]="query()"
-          (input)="query.set(($any($event.target).value as string) ?? '')"
+          (input)="query.set($any($event.target).value || '')"
           placeholder="procedure, specialty, tags…"
         />
         <button mat-icon-button matSuffix type="button" (click)="query.set('')" aria-label="Clear">
@@ -130,7 +130,7 @@
                 <input
                   matInput
                   [value]="tagDraft()"
-                  (input)="tagDraft.set(($any($event.target).value as string) ?? '')"
+                  (input)="tagDraft.set($any($event.target).value || '')"
                   (keydown.enter)="$event.preventDefault(); addTag()"
                   placeholder="comma-separated (e.g., ortho, knee)"
                 />

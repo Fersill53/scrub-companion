@@ -83,7 +83,7 @@
                 <input
                   matInput
                   [value]="tagDraft()"
-                  (input)="tagDraft.set(($any($event.target).value as string) ?? '')"
+                  (input)="tagDraft.set($any($event.target).value || '')"
                   (keydown.enter)="$event.preventDefault(); addTag()"
                   placeholder="comma-separated (e.g., ortho, knee)"
                 />

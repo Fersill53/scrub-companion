@@ -1,3 +1,4 @@
+/*
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -483,5 +484,327 @@ export class SetupBuilderComponent {
 
   private saveAll(plans: SetupPlan[]): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
+  }
+}
+*/
+
+import { CommonModule } from '@angular/common';
+import { Component, computed, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+type SetupItem = { name: string; qty?: number | null; notes?: string; checked?: boolean };
+
+type SetupPlan = {
+  id: string;
+  title: string;
+  specialty?: string;
+  procedure: string;
+  surgeon?: string;
+  facility?: string;
+  room: SetupItem[];
+  backTable: SetupItem[];
+  mayo: SetupItem[];
+  equipment: SetupItem[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const STORAGE_KEY = 'scrubcompanion_setups_v1';
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function safeUuid(): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const c: any = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return 'su_' + Math.random().toString(16).slice(2) + '_' + Date.now().toString(16);
+}
+
+function safeLoadAll(): SetupPlan[] {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as SetupPlan[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAll(setups: SetupPlan[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(setups));
+}
+
+@Component({
+  selector: 'app-setup-builder',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSnackBarModule,
+  ],
+  templateUrl: './setup-builder.component.html',
+  styleUrl: './setup-builder.component.scss',
+})
+export class SetupBuilderComponent {
+  readonly query = signal('');
+  readonly selectedId = signal<string | null>(null);
+
+  private readonly fb = new FormBuilder();
+
+  readonly setups = signal<SetupPlan[]>(safeLoadAll());
+
+  readonly filtered = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    if (!q) return this.setups();
+
+    return this.setups().filter(s => {
+      const hay = [s.title, s.procedure, s.specialty ?? '', s.surgeon ?? '', s.facility ?? '']
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  });
+
+  readonly form = this.fb.group({
+    id: this.fb.nonNullable.control(''),
+
+    title: this.fb.nonNullable.control('', [Validators.required]),
+    specialty: this.fb.nonNullable.control(''),
+    procedure: this.fb.nonNullable.control('', [Validators.required]),
+    surgeon: this.fb.nonNullable.control(''),
+    facility: this.fb.nonNullable.control(''),
+
+    room: this.fb.array([] as FormGroup[]),
+    backTable: this.fb.array([] as FormGroup[]),
+    mayo: this.fb.array([] as FormGroup[]),
+    equipment: this.fb.array([] as FormGroup[]),
+
+    notes: this.fb.nonNullable.control(''),
+  });
+
+  get roomFA(): FormArray<FormGroup> {
+    return this.form.controls['room'] as unknown as FormArray<FormGroup>;
+  }
+  get backTableFA(): FormArray<FormGroup> {
+    return this.form.controls['backTable'] as unknown as FormArray<FormGroup>;
+  }
+  get mayoFA(): FormArray<FormGroup> {
+    return this.form.controls['mayo'] as unknown as FormArray<FormGroup>;
+  }
+  get equipmentFA(): FormArray<FormGroup> {
+    return this.form.controls['equipment'] as unknown as FormArray<FormGroup>;
+  }
+
+  constructor(
+    private readonly snack: MatSnackBar,
+    private readonly route: ActivatedRoute,
+  ) {
+    const id = this.route.snapshot.queryParamMap.get('id');
+    if (id) {
+      const found = this.setups().find(s => s.id === id);
+      if (found) {
+        this.selectedId.set(found.id);
+        this.patchFrom(found);
+        return;
+      }
+    }
+
+    if (this.setups().length) {
+      const first = this.setups()[0];
+      this.selectedId.set(first.id);
+      this.patchFrom(first);
+    } else {
+      const blank = this.makeBlank();
+      this.upsert(blank, true);
+      this.selectedId.set(blank.id);
+      this.patchFrom(blank);
+    }
+  }
+
+  newSetup(): void {
+    const blank = this.makeBlank();
+    this.upsert(blank, true);
+    this.selectedId.set(blank.id);
+    this.patchFrom(blank);
+    this.snack.open('New setup created.', 'OK', { duration: 2000 });
+  }
+
+  select(id: string): void {
+    const found = this.setups().find(s => s.id === id);
+    if (!found) return;
+    this.selectedId.set(id);
+    this.patchFrom(found);
+  }
+
+  deleteSelected(): void {
+    const id = this.selectedId();
+    if (!id) return;
+
+    const next = this.setups().filter(s => s.id !== id);
+    this.setups.set(next);
+    saveAll(next);
+
+    if (next.length) {
+      this.selectedId.set(next[0].id);
+      this.patchFrom(next[0]);
+    } else {
+      const blank = this.makeBlank();
+      this.upsert(blank, true);
+      this.selectedId.set(blank.id);
+      this.patchFrom(blank);
+    }
+
+    this.snack.open('Setup deleted.', 'OK', { duration: 2200 });
+  }
+
+  // add/remove item rows
+  addRoom(): void { this.roomFA.push(this.makeItemFG()); }
+  removeRoom(i: number): void { this.roomFA.removeAt(i); }
+
+  addBackTable(): void { this.backTableFA.push(this.makeItemFG()); }
+  removeBackTable(i: number): void { this.backTableFA.removeAt(i); }
+
+  addMayo(): void { this.mayoFA.push(this.makeItemFG()); }
+  removeMayo(i: number): void { this.mayoFA.removeAt(i); }
+
+  addEquipment(): void { this.equipmentFA.push(this.makeItemFG()); }
+  removeEquipment(i: number): void { this.equipmentFA.removeAt(i); }
+
+  save(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snack.open('Fix required fields (Title + Procedure).', 'OK', { duration: 2600 });
+      return;
+    }
+
+    const raw = this.form.getRawValue() as unknown as {
+      id: string;
+      title: string;
+      specialty: string;
+      procedure: string;
+      surgeon: string;
+      facility: string;
+      notes: string;
+    };
+
+    const all = safeLoadAll();
+    const existing = all.find(s => s.id === raw.id);
+
+    const plan: SetupPlan = {
+      id: raw.id || existing?.id || safeUuid(),
+      title: (raw.title ?? '').trim(),
+      specialty: (raw.specialty ?? '').trim(),
+      procedure: (raw.procedure ?? '').trim(),
+      surgeon: (raw.surgeon ?? '').trim(),
+      facility: (raw.facility ?? '').trim(),
+      room: this.readItems(this.roomFA),
+      backTable: this.readItems(this.backTableFA),
+      mayo: this.readItems(this.mayoFA),
+      equipment: this.readItems(this.equipmentFA),
+      notes: (raw.notes ?? '').trim(),
+      createdAt: existing?.createdAt ?? nowIso(),
+      updatedAt: nowIso(),
+    };
+
+    const next = existing ? all.map(s => (s.id === plan.id ? plan : s)) : [plan, ...all];
+    saveAll(next);
+    this.setups.set(next);
+    this.selectedId.set(plan.id);
+
+    this.snack.open('Setup saved.', 'OK', { duration: 2200 });
+  }
+
+  // ---------- helpers ----------
+  private makeBlank(): SetupPlan {
+    const t = nowIso();
+    return {
+      id: safeUuid(),
+      title: '',
+      specialty: '',
+      procedure: '',
+      surgeon: '',
+      facility: '',
+      room: [{ name: '', qty: null, notes: '', checked: false }],
+      backTable: [{ name: '', qty: null, notes: '', checked: false }],
+      mayo: [{ name: '', qty: null, notes: '', checked: false }],
+      equipment: [{ name: '', qty: null, notes: '', checked: false }],
+      notes: '',
+      createdAt: t,
+      updatedAt: t,
+    };
+  }
+
+  private makeItemFG(v?: SetupItem): FormGroup {
+    return this.fb.group({
+      name: this.fb.nonNullable.control(v?.name ?? '', [Validators.required]),
+      qty: this.fb.control<number | null>(v?.qty ?? null),
+      notes: this.fb.nonNullable.control(v?.notes ?? ''),
+      checked: this.fb.nonNullable.control(!!v?.checked),
+    });
+  }
+
+  private readItems(arr: FormArray<FormGroup>): SetupItem[] {
+    return arr.controls
+      .map(ctrl => ctrl.getRawValue() as unknown as { name: string; qty: number | null; notes: string; checked: boolean })
+      .map(v => ({
+        name: (v.name ?? '').trim(),
+        qty: v.qty ?? null,
+        notes: (v.notes ?? '').trim(),
+        checked: !!v.checked,
+      }))
+      .filter(x => x.name.length > 0);
+  }
+
+  private patchFrom(s: SetupPlan): void {
+    this.form.controls.id.setValue(s.id);
+    this.form.controls.title.setValue(s.title ?? '');
+    this.form.controls.specialty.setValue(s.specialty ?? '');
+    this.form.controls.procedure.setValue(s.procedure ?? '');
+    this.form.controls.surgeon.setValue(s.surgeon ?? '');
+    this.form.controls.facility.setValue(s.facility ?? '');
+    this.form.controls.notes.setValue(s.notes ?? '');
+
+    this.replaceItems(this.roomFA, s.room ?? []);
+    this.replaceItems(this.backTableFA, s.backTable ?? []);
+    this.replaceItems(this.mayoFA, s.mayo ?? []);
+    this.replaceItems(this.equipmentFA, s.equipment ?? []);
+  }
+
+  private replaceItems(arr: FormArray<FormGroup>, items: SetupItem[]): void {
+    while (arr.length) arr.removeAt(0);
+    (items.length ? items : [{ name: '', qty: null, notes: '', checked: false }]).forEach(i => arr.push(this.makeItemFG(i)));
+  }
+
+  private upsert(s: SetupPlan, persist: boolean): void {
+    const all = this.setups();
+    const idx = all.findIndex(x => x.id === s.id);
+    const next = [...all];
+
+    if (idx >= 0) next[idx] = s;
+    else next.unshift(s);
+
+    this.setups.set(next);
+    if (persist) saveAll(next);
   }
 }

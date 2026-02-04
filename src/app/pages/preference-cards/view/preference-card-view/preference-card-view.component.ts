@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { DatePipe } from '@angular/common';
 
 import { PreferenceCard } from '../../data/preference-card.model';
 import { PreferenceCardStore } from '../../data/preference-card-store.service';
@@ -20,6 +21,7 @@ import { PreferenceCardStore } from '../../data/preference-card-store.service';
     MatChipsModule,
     MatDividerModule,
     MatIconModule,
+    DatePipe
   ],
   templateUrl: './preference-card-view.component.html',
   styleUrl: './preference-card-view.component.scss',
