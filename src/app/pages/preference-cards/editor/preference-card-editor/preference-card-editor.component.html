@@ -1,3 +1,4 @@
+<!--
 <section class="wrap">
   <header class="header">
     <div>
@@ -20,7 +21,7 @@
 
   <mat-card class="card">
     <mat-stepper linear class="stepper">
-      <!-- Step 1: Basics -->
+      <! Step 1: Basics -
       <mat-step [stepControl]="form">
         <ng-template matStepLabel>Basics</ng-template>
 
@@ -118,7 +119,7 @@
         </div>
       </mat-step>
 
-      <!-- Step 2: Setup -->
+      <- Step 2: Setup -
       <mat-step>
         <ng-template matStepLabel>Setup</ng-template>
 
@@ -183,7 +184,7 @@
         </div>
       </mat-step>
 
-      <!-- Step 3: Pick List -->
+      <! Step 3: Pick List -
       <mat-step>
         <ng-template matStepLabel>Pick List</ng-template>
 
@@ -308,7 +309,7 @@
         </div>
       </mat-step>
 
-      <!-- Step 4: Notes -->
+      <- Step 4: Notes -
       <mat-step>
         <ng-template matStepLabel>Notes</ng-template>
 
@@ -329,6 +330,400 @@
               Save Card
             </button>
           </div>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </mat-card>
+</section>
+-->
+
+<section class="wrap" [formGroup]="form">
+  <header class="header">
+    <div class="header__left">
+      <h1 class="title">{{ titleText() }}</h1>
+      <p class="sub">Build a clean, printable pick list you can reuse.</p>
+    </div>
+
+    <div class="header__actions">
+      <button mat-stroked-button type="button" (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+
+      <button mat-raised-button color="primary" type="button" (click)="save()">
+        <mat-icon>save</mat-icon>
+        Save
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="card">
+    <mat-stepper linear class="stepper">
+      <!-- STEP 1: Basics -->
+      <mat-step [stepControl]="form">
+        <ng-template matStepLabel>Basics</ng-template>
+
+        <div class="grid">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="e.g., Dr. Smith – TKA (Right)" />
+            @if (form.controls.title.touched && form.controls.title.invalid) {
+              <mat-hint class="err">Title is required.</mat-hint>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Specialty</mat-label>
+            <mat-select formControlName="specialty">
+              @for (s of specialties; track s) {
+                <mat-option [value]="s">{{ s }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Procedure</mat-label>
+            <input matInput formControlName="procedure" placeholder="e.g., Total Knee Arthroplasty" />
+            @if (form.controls.procedure.touched && form.controls.procedure.invalid) {
+              <mat-hint class="err">Procedure is required.</mat-hint>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Surgeon</mat-label>
+            <input matInput formControlName="surgeon" placeholder="e.g., Dr. Smith" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Facility</mat-label>
+            <input matInput formControlName="facility" placeholder="e.g., Main OR" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Template</mat-label>
+            <mat-select (selectionChange)="onTemplateChange($event)">
+              @for (t of templates; track t.id) {
+                <mat-option [value]="t.id">{{ t.label }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Applies a starter skeleton to help you build faster.</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="tags">
+          <div class="tags__row">
+            <mat-form-field appearance="outline" class="tags__input">
+              <mat-label>Tags</mat-label>
+              <input
+                matInput
+                [value]="tagDraft()"
+                (input)="tagDraft.set($any($event.target).value || '')"
+                (keydown.enter)="$event.preventDefault(); addTag()"
+                placeholder="Add tags (comma separated is ok)"
+              />
+              <button mat-icon-button matSuffix type="button" (click)="addTag()" aria-label="Add tag">
+                <mat-icon>add</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <button mat-stroked-button type="button" class="tags__btn" (click)="addTag()">
+              Add
+            </button>
+          </div>
+
+          @if (form.controls.tags.value.length) {
+            <mat-chip-set class="chipset">
+              @for (t of form.controls.tags.value; track t) {
+                <mat-chip (removed)="removeTag(t)">
+                  {{ t }}
+                  <button matChipRemove type="button" aria-label="Remove tag">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip>
+              }
+            </mat-chip-set>
+          }
+        </div>
+
+        <div class="stepActions">
+          <button mat-raised-button color="primary" matStepperNext type="button">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 2: Notes -->
+      <mat-step>
+        <ng-template matStepLabel>Notes</ng-template>
+
+        <div class="grid">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Positioning</mat-label>
+            <textarea matInput rows="3" formControlName="positioning"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Prep / Drape</mat-label>
+            <textarea matInput rows="3" formControlName="prepDrape"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Pearls / Reminders</mat-label>
+            <textarea matInput rows="4" formControlName="pearls"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="stepActions">
+          <button mat-stroked-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" matStepperNext type="button">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 3: Equipment -->
+      <mat-step>
+        <ng-template matStepLabel>Equipment</ng-template>
+
+        <div class="sectionHead">
+          <div>
+            <div class="sectionTitle">Equipment</div>
+            <div class="sectionSub">Room equipment, positioning gear, towers, etc.</div>
+          </div>
+
+          <button mat-stroked-button type="button" (click)="addItem('equipment')">
+            <mat-icon>add</mat-icon>
+            Add Row
+          </button>
+        </div>
+
+        <div class="items" formArrayName="equipment">
+          @for (ctrl of equipmentFA.controls; track $index) {
+            <div class="itemRow" [formGroupName]="$index">
+              <mat-form-field appearance="outline" class="name">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="qty">
+                <mat-label>Qty</mat-label>
+                <input matInput type="number" formControlName="qty" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="notes">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes" />
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="remove"
+                (click)="removeItem('equipment', $index)"
+                aria-label="Remove row"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="stepActions">
+          <button mat-stroked-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" matStepperNext type="button">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 4: Instruments -->
+      <mat-step>
+        <ng-template matStepLabel>Instruments</ng-template>
+
+        <div class="sectionHead">
+          <div>
+            <div class="sectionTitle">Instruments</div>
+            <div class="sectionSub">Trays, sets, vendor pans, special instruments.</div>
+          </div>
+
+          <button mat-stroked-button type="button" (click)="addItem('instruments')">
+            <mat-icon>add</mat-icon>
+            Add Row
+          </button>
+        </div>
+
+        <div class="items" formArrayName="instruments">
+          @for (ctrl of instrumentsFA.controls; track $index) {
+            <div class="itemRow" [formGroupName]="$index">
+              <mat-form-field appearance="outline" class="name">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="qty">
+                <mat-label>Qty</mat-label>
+                <input matInput type="number" formControlName="qty" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="notes">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes" />
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="remove"
+                (click)="removeItem('instruments', $index)"
+                aria-label="Remove row"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="stepActions">
+          <button mat-stroked-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" matStepperNext type="button">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 5: Supplies -->
+      <mat-step>
+        <ng-template matStepLabel>Supplies</ng-template>
+
+        <div class="sectionHead">
+          <div>
+            <div class="sectionTitle">Supplies</div>
+            <div class="sectionSub">Drapes, blades, syringes, sponges, disposables.</div>
+          </div>
+
+          <button mat-stroked-button type="button" (click)="addItem('supplies')">
+            <mat-icon>add</mat-icon>
+            Add Row
+          </button>
+        </div>
+
+        <div class="items" formArrayName="supplies">
+          @for (ctrl of suppliesFA.controls; track $index) {
+            <div class="itemRow" [formGroupName]="$index">
+              <mat-form-field appearance="outline" class="name">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="qty">
+                <mat-label>Qty</mat-label>
+                <input matInput type="number" formControlName="qty" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="notes">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes" />
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="remove"
+                (click)="removeItem('supplies', $index)"
+                aria-label="Remove row"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="stepActions">
+          <button mat-stroked-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" matStepperNext type="button">
+            Next
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 6: Sutures -->
+      <mat-step>
+        <ng-template matStepLabel>Sutures</ng-template>
+
+        <div class="sectionHead">
+          <div>
+            <div class="sectionTitle">Sutures</div>
+            <div class="sectionSub">Deep, subq, skin, staples, specialty closure.</div>
+          </div>
+
+          <button mat-stroked-button type="button" (click)="addItem('sutures')">
+            <mat-icon>add</mat-icon>
+            Add Row
+          </button>
+        </div>
+
+        <div class="items" formArrayName="sutures">
+          @for (ctrl of suturesFA.controls; track $index) {
+            <div class="itemRow" [formGroupName]="$index">
+              <mat-form-field appearance="outline" class="name">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="qty">
+                <mat-label>Qty</mat-label>
+                <input matInput type="number" formControlName="qty" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="notes">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes" />
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="remove"
+                (click)="removeItem('sutures', $index)"
+                aria-label="Remove row"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="stepActions">
+          <button mat-stroked-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" type="button" (click)="save()">
+            <mat-icon>save</mat-icon>
+            Save Card
+          </button>
         </div>
       </mat-step>
     </mat-stepper>
