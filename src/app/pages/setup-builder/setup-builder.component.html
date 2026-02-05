@@ -1,3 +1,4 @@
+<!--
 <section class="wrap">
   <header class="header noPrint">
     <div class="header__left">
@@ -44,7 +45,7 @@
   </header>
 
   <div class="layout">
-    <!-- Left: Library -->
+    <!- Left: Library -
     <mat-card class="panel noPrint">
       <div class="panel__title">My Setups</div>
 
@@ -87,7 +88,7 @@
       </div>
     </mat-card>
 
-    <!-- Right: Editor -->
+    <!- Right: Editor -
     <mat-card class="editor">
       <div class="editorTop">
         <div class="editorTop__title">Editor</div>
@@ -103,7 +104,7 @@
       </div>
 
       <mat-tab-group class="tabs">
-        <!-- BASICS -->
+        <!- BASICS -
         <mat-tab label="Basics">
           <div class="tabBody">
             <div class="row row--2">
@@ -143,7 +144,7 @@
           </div>
         </mat-tab>
 
-        <!-- ROOM -->
+        <! ROOM -
         <mat-tab label="Room">
           <div class="tabBody">
             <div class="listHeader">
@@ -183,7 +184,7 @@
           </div>
         </mat-tab>
 
-        <!-- BACK TABLE -->
+        <! BACK TABLE -
         <mat-tab label="Back Table">
           <div class="tabBody">
             <div class="listHeader">
@@ -223,7 +224,7 @@
           </div>
         </mat-tab>
 
-        <!-- MAYO -->
+        < MAYO -
         <mat-tab label="Mayo">
           <div class="tabBody">
             <div class="listHeader">
@@ -263,7 +264,7 @@
           </div>
         </mat-tab>
 
-        <!-- EQUIPMENT -->
+        <- EQUIPMENT -
         <mat-tab label="Equipment">
           <div class="tabBody">
             <div class="listHeader">
@@ -303,7 +304,7 @@
           </div>
         </mat-tab>
 
-        <!-- NOTES -->
+        <- NOTES -
         <mat-tab label="Notes">
           <div class="tabBody">
             <mat-form-field appearance="outline">
@@ -317,6 +318,298 @@
           </div>
         </mat-tab>
       </mat-tab-group>
+    </mat-card>
+  </div>
+</section>
+-->
+
+<section class="wrap">
+  <header class="header">
+    <div class="header__left">
+      <h1 class="title">Setup Builder</h1>
+      <p class="sub">Personal room + back table checklists built for scrub techs.</p>
+    </div>
+
+    <div class="header__actions">
+      <button mat-stroked-button type="button" (click)="clearChecks()">
+        <mat-icon>checklist</mat-icon>
+        Clear checks
+      </button>
+
+      <button mat-stroked-button type="button" (click)="print()">
+        <mat-icon>print</mat-icon>
+        Print
+      </button>
+
+      <button mat-stroked-button type="button" (click)="duplicateSelected()">
+        <mat-icon>content_copy</mat-icon>
+        Duplicate
+      </button>
+
+      <button mat-raised-button color="primary" type="button" (click)="save()">
+        <mat-icon>save</mat-icon>
+        Save
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT LIST -->
+    <mat-card class="card listCard">
+      <div class="listTop">
+        <mat-form-field appearance="outline" class="searchField">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [value]="query()"
+            (input)="query.set($any($event.target).value || '')"
+            placeholder="Try: TKA, lap chole..."
+          />
+          <button mat-icon-button matSuffix type="button" (click)="query.set('')" aria-label="Clear">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="button" (click)="newSetup()">
+          <mat-icon>add</mat-icon>
+          New
+        </button>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <mat-nav-list class="list">
+        @for (s of filtered(); track s.id) {
+          <a mat-list-item [class.active]="selectedId() === s.id" (click)="select(s.id)">
+            <div class="rowTitle">{{ s.title || '(Untitled)' }}</div>
+            <div class="rowSub">{{ s.specialty || '—' }} • {{ s.procedure || 'Procedure not set' }}</div>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-card>
+
+    <!-- RIGHT EDITOR -->
+    <mat-card class="card editorCard">
+      <div class="editorTop">
+        <div class="editorTop__left">
+          <div class="editorTitle">Setup Editor</div>
+          <div class="editorSub">Build your checklist fast and print it.</div>
+        </div>
+
+        <div class="editorTop__actions">
+          <button mat-stroked-button type="button" (click)="deleteSelected()">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <form class="form" [formGroup]="form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Specialty</mat-label>
+            <input matInput formControlName="specialty" />
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Procedure</mat-label>
+            <input matInput formControlName="procedure" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Surgeon (optional)</mat-label>
+            <input matInput formControlName="surgeon" />
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Facility (optional)</mat-label>
+            <input matInput formControlName="facility" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Template (optional)</mat-label>
+            <mat-select (selectionChange)="onTemplateChange($event)">
+              @for (t of templates; track t.id) {
+                <mat-option [value]="t.id">{{ t.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-divider class="divider"></mat-divider>
+
+        <mat-tab-group class="tabs">
+          <mat-tab label="Room">
+            <div class="tabTop">
+              <button mat-stroked-button type="button" class="noPrint" (click)="addItem('room')">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </div>
+
+            <div class="items" formArrayName="room">
+              @for (ctrl of roomFA.controls; track $index) {
+                <mat-card class="item" [formGroupName]="$index">
+                  <div class="itemRow">
+                    <mat-checkbox formControlName="checked" class="check"></mat-checkbox>
+
+                    <mat-form-field appearance="outline" class="name">
+                      <mat-label>Item</mat-label>
+                      <input matInput formControlName="name" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="qty">
+                      <mat-label>Qty</mat-label>
+                      <input matInput type="number" formControlName="qty" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="notes">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+
+                    <button mat-icon-button type="button" class="noPrint" (click)="removeItem('room', $index)" aria-label="Remove">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Back Table">
+            <div class="tabTop">
+              <button mat-stroked-button type="button" class="noPrint" (click)="addItem('backTable')">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </div>
+
+            <div class="items" formArrayName="backTable">
+              @for (ctrl of backTableFA.controls; track $index) {
+                <mat-card class="item" [formGroupName]="$index">
+                  <div class="itemRow">
+                    <mat-checkbox formControlName="checked" class="check"></mat-checkbox>
+
+                    <mat-form-field appearance="outline" class="name">
+                      <mat-label>Item</mat-label>
+                      <input matInput formControlName="name" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="qty">
+                      <mat-label>Qty</mat-label>
+                      <input matInput type="number" formControlName="qty" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="notes">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+
+                    <button mat-icon-button type="button" class="noPrint" (click)="removeItem('backTable', $index)" aria-label="Remove">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Mayo">
+            <div class="tabTop">
+              <button mat-stroked-button type="button" class="noPrint" (click)="addItem('mayo')">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </div>
+
+            <div class="items" formArrayName="mayo">
+              @for (ctrl of mayoFA.controls; track $index) {
+                <mat-card class="item" [formGroupName]="$index">
+                  <div class="itemRow">
+                    <mat-checkbox formControlName="checked" class="check"></mat-checkbox>
+
+                    <mat-form-field appearance="outline" class="name">
+                      <mat-label>Item</mat-label>
+                      <input matInput formControlName="name" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="qty">
+                      <mat-label>Qty</mat-label>
+                      <input matInput type="number" formControlName="qty" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="notes">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+
+                    <button mat-icon-button type="button" class="noPrint" (click)="removeItem('mayo', $index)" aria-label="Remove">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Equipment">
+            <div class="tabTop">
+              <button mat-stroked-button type="button" class="noPrint" (click)="addItem('equipment')">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </div>
+
+            <div class="items" formArrayName="equipment">
+              @for (ctrl of equipmentFA.controls; track $index) {
+                <mat-card class="item" [formGroupName]="$index">
+                  <div class="itemRow">
+                    <mat-checkbox formControlName="checked" class="check"></mat-checkbox>
+
+                    <mat-form-field appearance="outline" class="name">
+                      <mat-label>Item</mat-label>
+                      <input matInput formControlName="name" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="qty">
+                      <mat-label>Qty</mat-label>
+                      <input matInput type="number" formControlName="qty" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="notes">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+
+                    <button mat-icon-button type="button" class="noPrint" (click)="removeItem('equipment', $index)" aria-label="Remove">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Notes">
+            <mat-form-field appearance="outline" class="notesBig">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="6"></textarea>
+            </mat-form-field>
+          </mat-tab>
+        </mat-tab-group>
+      </form>
     </mat-card>
   </div>
 </section>

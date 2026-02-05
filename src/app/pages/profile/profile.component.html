@@ -1,3 +1,4 @@
+<!--
 <section class="wrap">
   <header class="header">
     <div>
@@ -85,6 +86,110 @@
         <mat-icon>delete_forever</mat-icon>
         Clear All Preference Cards
       </button>
+    </mat-card>
+  </div>
+</section>
+-->
+
+<!-- This is supposed to take out the type = "form" errors -->
+
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Profile</h1>
+      <p class="sub">
+        {{ appName }}
+        <span class="dot">•</span>
+        {{ versionLabel }}
+      </p>
+    </div>
+
+    <a mat-stroked-button routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </a>
+  </header>
+
+  <div class="grid">
+    <mat-card class="card">
+      <div class="cardHead">
+        <div>
+          <div class="cardTitle">Backup & Restore</div>
+          <div class="cardSub">Export or import your preference cards (local JSON).</div>
+        </div>
+
+        <div class="pill">
+          <mat-icon>folder</mat-icon>
+          <span>{{ cardCount() }} cards</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="row">
+        <button mat-raised-button color="primary" type="button" (click)="exportPreferenceCards()">
+          <mat-icon>download</mat-icon>
+          Export preference cards
+        </button>
+
+        <button mat-stroked-button type="button" (click)="filePicker.click()">
+          <mat-icon>upload</mat-icon>
+          Import from file
+        </button>
+
+        <!-- IMPORTANT: no matInput on file input -->
+        <input
+          #filePicker
+          class="fileInput"
+          type="file"
+          accept="application/json"
+          (change)="importPreferenceCardsFromFile(filePicker.files?.item(0) ?? null); filePicker.value=''"
+        />
+      </div>
+
+      <div class="meta">
+        <div class="metaRow">
+          <span class="metaLabel">Last export:</span>
+          <span class="metaValue">{{ lastBackupName() || '—' }}</span>
+        </div>
+
+        <div class="metaRow">
+          <span class="metaLabel">Last import:</span>
+          <span class="metaValue">{{ lastImportedName() || '—' }}</span>
+        </div>
+      </div>
+
+      <div class="note">
+        <mat-icon>info</mat-icon>
+        <div>
+          Imports accept either a wrapped payload
+          <code>{{ '{' }} "data": [...] {{ '}' }}</code>
+          or a raw array of cards.
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="card danger">
+      <div class="cardHead">
+        <div>
+          <div class="cardTitle">Danger Zone</div>
+          <div class="cardSub">Clear local preference cards on this device.</div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="dangerBody">
+        <p class="dangerText">
+          This removes <b>only</b> locally stored preference cards (your browser storage).
+          Export first if you want a backup.
+        </p>
+
+        <button mat-stroked-button color="warn" type="button" (click)="clearAllPreferenceCards()">
+          <mat-icon>delete_forever</mat-icon>
+          Clear all local preference cards
+        </button>
+      </div>
     </mat-card>
   </div>
 </section>

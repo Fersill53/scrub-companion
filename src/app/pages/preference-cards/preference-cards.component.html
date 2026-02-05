@@ -1,3 +1,4 @@
+<!--
 <section class="wrap">
   <header class="header">
     <div class="header__left">
@@ -84,5 +85,96 @@
         <div class="empty__sub">Try a different keyword or create a new card.</div>
       </div>
     }
+  </mat-card>
+</section>
+-->
+
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Preference Cards</h1>
+      <p class="sub">Create, save, and print your personal pick lists.</p>
+    </div>
+
+    <div class="actions">
+      <button mat-stroked-button type="button" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      <button mat-raised-button color="primary" type="button" (click)="newCard()">
+        <mat-icon>add</mat-icon>
+        New Card
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="card">
+    <div class="top">
+      <mat-form-field appearance="outline" class="search">
+        <mat-label>Search</mat-label>
+        <input
+          matInput
+          [value]="query()"
+          (input)="query.set($any($event.target).value || '')"
+          placeholder="Try: TKA, ACL, surgeon name, tags..."
+        />
+        <button mat-icon-button matSuffix type="button" (click)="clearSearch()" aria-label="Clear">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <div class="count">
+        <mat-icon>folder</mat-icon>
+        <span>{{ filtered().length }} shown</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="list">
+      @if (!filtered().length) {
+        <div class="empty">
+          <mat-icon>inventory_2</mat-icon>
+          <div>
+            <div class="emptyTitle">No cards yet</div>
+            <div class="emptySub">Click “New Card” to create your first preference card.</div>
+          </div>
+        </div>
+      } @else {
+        @for (card of filtered(); track card.id) {
+          <div class="row" (click)="openCard(card.id)" role="button" tabindex="0">
+            <div class="rowMain">
+              <div class="rowTitle">{{ card.title || '(Untitled)' }}</div>
+              <div class="rowSub">
+                {{ card.procedure || 'Procedure not set' }}
+                @if (card.surgeon) {
+                  <span class="dot">•</span> {{ card.surgeon }}
+                }
+              </div>
+
+              @if (card.tags && card.tags.length) {
+                <mat-chip-set class="chips">
+                  @for (t of card.tags; track t) {
+                    <mat-chip>{{ t }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
+            </div>
+
+            <div class="rowActions noClick">
+              <button mat-stroked-button type="button" (click)="openCard(card.id); $event.stopPropagation()">
+                View
+              </button>
+              <button mat-stroked-button color="warn" type="button" (click)="deleteCard(card.id); $event.stopPropagation()">
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+        }
+      }
+    </div>
   </mat-card>
 </section>

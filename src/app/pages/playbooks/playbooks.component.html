@@ -1,8 +1,8 @@
 <section class="wrap">
-  <header class="header noPrint">
+  <header class="header">
     <div class="header__left">
-      <h1 class="title">Procedure Playbooks</h1>
-      <p class="sub">A tech-focused “flow + anticipate” guide you can customize per surgeon.</p>
+      <h1 class="title">Playbooks</h1>
+      <p class="sub">Procedure flow and step cues built for scrub techs.</p>
     </div>
 
     <div class="header__actions">
@@ -16,187 +16,194 @@
         Print
       </button>
 
-      <button mat-stroked-button type="button" (click)="duplicateSelected()">
-        <mat-icon>content_copy</mat-icon>
-        Duplicate
-      </button>
-
-      <button mat-stroked-button type="button" (click)="deleteSelected()">
-        <mat-icon>delete</mat-icon>
-        Delete
-      </button>
-
       <button mat-raised-button color="primary" type="button" (click)="save()">
         <mat-icon>save</mat-icon>
         Save
       </button>
-
-      <button mat-raised-button type="button" (click)="newPlaybook()">
-        <mat-icon>add</mat-icon>
-        New
-      </button>
     </div>
   </header>
 
-  <div class="layout">
-    <!-- Left: Library -->
-    <mat-card class="panel noPrint">
-      <div class="panel__title">My Playbooks</div>
+  <div class="grid">
+    <!-- LEFT LIST -->
+    <mat-card class="card listCard">
+      <div class="listTop">
+        <mat-form-field appearance="outline" class="searchField">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [value]="query()"
+            (input)="query.set($any($event.target).value || '')"
+            placeholder="Try: TKA, lap chole..."
+          />
+          <button mat-icon-button matSuffix type="button" (click)="query.set('')" aria-label="Clear">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="search">
-        <mat-label>Search</mat-label>
-        <input
-          matInput
-          [value]="query()"
-          (input)="query.set($any($event.target).value || '')"
-          placeholder="procedure, specialty, tags…"
-        />
-        <button mat-icon-button matSuffix type="button" (click)="query.set('')" aria-label="Clear">
-          <mat-icon>close</mat-icon>
+        <button mat-raised-button color="primary" type="button" (click)="newPlaybook()">
+          <mat-icon>add</mat-icon>
+          New
         </button>
-      </mat-form-field>
+      </div>
 
       <mat-divider class="divider"></mat-divider>
 
       <mat-nav-list class="list">
         @for (p of filtered(); track p.id) {
-          <a mat-list-item (click)="select(p.id)" [class.active]="selectedId() === p.id">
-            <div class="list__primary">{{ p.title || '(Untitled Playbook)' }}</div>
-            <div class="list__secondary">{{ p.specialty || '—' }} • {{ p.procedure || 'Procedure not set' }}</div>
-          </a>
-        }
-      </mat-nav-list>
+          <a mat-list-item [class.active]="selectedId() === p.id" (click)="select(p.id)">
+            <div class="rowTitle">{{ p.title || '(Untitled)' }}</div>
+            <div class="rowSub">{{ p.specialty || '—' }} • {{ p.procedure || 'Procedure not set' }}</div>
 
-      <mat-divider class="divider"></mat-divider>
-
-      <div class="hint">
-        Tip: keep steps short. Your goal is “stay ahead” not write a textbook.
-      </div>
-    </mat-card>
-
-    <!-- Right: Editor -->
-    <mat-card class="editor">
-      <div class="editorTop">
-        <div class="editorTop__title">Editor</div>
-
-        <mat-form-field appearance="outline" class="templateField noPrint">
-          <mat-label>Apply a starter template</mat-label>
-          <mat-select (selectionChange)="onTemplateChange($event)">
-            @for (t of templates; track t.id) {
-              <mat-option [value]="t.id">{{ t.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <mat-tab-group class="tabs">
-        <mat-tab label="Basics">
-          <div class="tabBody">
-            <div class="row row--2">
-              <mat-form-field appearance="outline">
-                <mat-label>Title</mat-label>
-                <input matInput [formControl]="form.controls.title" placeholder="e.g., Lap Chole - Flow" />
-                @if (form.controls.title.touched && form.controls.title.invalid) {
-                  <mat-error>Title is required</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Procedure</mat-label>
-                <input matInput [formControl]="form.controls.procedure" placeholder="e.g., Laparoscopic Cholecystectomy" />
-                @if (form.controls.procedure.touched && form.controls.procedure.invalid) {
-                  <mat-error>Procedure is required</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="row row--2">
-              <mat-form-field appearance="outline">
-                <mat-label>Specialty</mat-label>
-                <input matInput [formControl]="form.controls.specialty" placeholder="e.g., General" />
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Surgeon (optional)</mat-label>
-                <input matInput [formControl]="form.controls.surgeon" placeholder="e.g., Dr. Smith" />
-              </mat-form-field>
-            </div>
-
-            <mat-divider class="divider"></mat-divider>
-
-            <div class="tagbox">
-              <mat-form-field appearance="outline" class="tagbox__field">
-                <mat-label>Tags</mat-label>
-                <input
-                  matInput
-                  [value]="tagDraft()"
-                  (input)="tagDraft.set($any($event.target).value || '')"
-                  (keydown.enter)="$event.preventDefault(); addTag()"
-                  placeholder="comma-separated (e.g., ortho, knee)"
-                />
-              </mat-form-field>
-
-              <button mat-stroked-button type="button" class="noPrint" (click)="addTag()">
-                <mat-icon>add</mat-icon>
-                Add
-              </button>
-            </div>
-
-            @if (form.controls.tags.value?.length) {
+            @if (p.tags?.length) {
               <mat-chip-set class="chips">
-                @for (t of form.controls.tags.value; track t) {
-                  <mat-chip (removed)="removeTag(t)">
-                    {{ t }}
-                    <button matChipRemove aria-label="Remove tag">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip>
+                @for (t of p.tags; track t) {
+                  <mat-chip>{{ t }}</mat-chip>
                 }
               </mat-chip-set>
             }
-          </div>
-        </mat-tab>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-card>
 
-        <mat-tab label="Phases">
-          <div class="tabBody">
-            @for (phaseCtrl of phasesFA.controls; track $index) {
-              <mat-card class="phaseCard" [formGroup]="phaseCtrl">
-                <div class="phaseTop">
-                  <div class="phaseTop__title">
-                    <mat-icon class="noPrint">flag</mat-icon>
-                    <span>{{ phaseCtrl.controls.name.value }}</span>
+    <!-- RIGHT EDITOR -->
+    <mat-card class="card editorCard">
+      <div class="editorTop">
+        <div class="editorTop__left">
+          <div class="editorTitle">{{ selected()?.title || 'Playbook Editor' }}</div>
+          <div class="editorSub">{{ selected()?.specialty || '—' }} • {{ selected()?.procedure || 'Procedure not set' }}</div>
+        </div>
+
+        <div class="editorTop__actions">
+          <button mat-stroked-button type="button" (click)="duplicateSelected()">
+            <mat-icon>content_copy</mat-icon>
+            Duplicate
+          </button>
+
+          <button mat-stroked-button type="button" (click)="deleteSelected()">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <form class="form" [formGroup]="form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Specialty</mat-label>
+            <input matInput formControlName="specialty" />
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Procedure</mat-label>
+            <input matInput formControlName="procedure" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Surgeon (optional)</mat-label>
+            <input matInput formControlName="surgeon" />
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <div class="tagBox">
+            <mat-form-field appearance="outline" class="tagInput">
+              <mat-label>Add tags</mat-label>
+              <input
+                matInput
+                [value]="tagDraft()"
+                (input)="tagDraft.set($any($event.target).value || '')"
+                (keydown.enter)="$event.preventDefault(); addTag()"
+                placeholder="comma separated: ortho, knee..."
+              />
+            </mat-form-field>
+
+            <button mat-stroked-button type="button" (click)="addTag()">
+              <mat-icon>add</mat-icon>
+              Add
+            </button>
+          </div>
+        </div>
+
+        @if (form.controls.tags.value.length) {
+          <mat-chip-set class="chips">
+            @for (t of form.controls.tags.value; track t) {
+              <mat-chip (removed)="removeTag(t)">
+                {{ t }}
+                <button matChipRemove aria-label="Remove tag">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            }
+          </mat-chip-set>
+        }
+
+        <mat-divider class="divider"></mat-divider>
+
+        <div class="phases" formArrayName="phases">
+          <div class="phasesTitle">Phases</div>
+
+          @for (phaseCtrl of phasesFA.controls; track $index; let phaseIndex = $index) {
+            <mat-card class="phase" [formGroupName]="phaseIndex">
+              <div class="phaseTop">
+                <div class="phaseTop__left">
+                  <div class="phaseName">
+                    <mat-icon class="phaseIcon">segment</mat-icon>
+                    <span>{{ phaseCtrl.controls['name'].value }}</span>
                   </div>
 
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    class="noPrint"
-                    (click)="addStep($index)"
-                  >
+                  <div class="goal">
+                    <div class="goal__label">Goal</div>
+                    <div class="goal__text">{{ phaseCtrl.controls['goal'].value || '—' }}</div>
+                  </div>
+                </div>
+
+                <div class="phaseTop__actions">
+                  <button mat-stroked-button type="button" (click)="addStep(phaseIndex)">
                     <mat-icon>add</mat-icon>
-                    Add step
+                    Step
                   </button>
                 </div>
+              </div>
 
-                <div class="goal">
-                  <div class="goal__label">Goal</div>
-                  <div class="goal__text">{{ phaseCtrl.controls.goal.value || '—' }}</div>
-                </div>
+              <div class="phaseFields">
+                <mat-form-field appearance="outline" class="field">
+                  <mat-label>Phase name</mat-label>
+                  <input matInput formControlName="name" />
+                </mat-form-field>
 
-                <div class="steps" [formArrayName]="'steps'">
-                  @for (stepCtrl of stepsFA($index).controls; track $index) {
-                    <div class="stepRow" [formGroupName]="$index">
-                      <mat-form-field appearance="outline" class="text">
+                <mat-form-field appearance="outline" class="field">
+                  <mat-label>Goal</mat-label>
+                  <input matInput formControlName="goal" />
+                </mat-form-field>
+              </div>
+
+              <div class="steps" formArrayName="steps">
+                @for (stepCtrl of stepsFA(phaseIndex).controls; track $index) {
+                  <mat-card class="step" [formGroupName]="$index">
+                    <div class="stepRow">
+                      <mat-form-field appearance="outline" class="stepText">
                         <mat-label>Step</mat-label>
-                        <input matInput formControlName="text" placeholder="Short, actionable step…" />
+                        <input matInput formControlName="text" />
                       </mat-form-field>
 
-                      <mat-form-field appearance="outline" class="cue">
-                        <mat-label>Cue (optional)</mat-label>
-                        <input matInput formControlName="cue" placeholder="When this happens…" />
+                      <mat-form-field appearance="outline" class="stepCue">
+                        <mat-label>Cue</mat-label>
+                        <input matInput formControlName="cue" />
                       </mat-form-field>
+                    </div>
 
-                      <mat-form-field appearance="outline" class="role">
+                    <div class="stepRow">
+                      <mat-form-field appearance="outline" class="stepSmall">
                         <mat-label>Role</mat-label>
                         <mat-select formControlName="role">
                           @for (r of roles; track r) {
@@ -205,7 +212,7 @@
                         </mat-select>
                       </mat-form-field>
 
-                      <mat-form-field appearance="outline" class="priority">
+                      <mat-form-field appearance="outline" class="stepSmall">
                         <mat-label>Priority</mat-label>
                         <mat-select formControlName="priority">
                           @for (p of priorities; track p) {
@@ -214,36 +221,31 @@
                         </mat-select>
                       </mat-form-field>
 
-                      <button
-                        mat-icon-button
-                        type="button"
-                        class="noPrint"
-                        (click)="removeStep($parent.$index, $index)"
-                        aria-label="Remove step"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
+                      <div class="stepActions">
+                        <button mat-stroked-button type="button" (click)="removeStep(phaseIndex, $index)">
+                          <mat-icon>delete</mat-icon>
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  }
-                </div>
-              </mat-card>
-            }
-          </div>
-        </mat-tab>
+                  </mat-card>
+                }
 
-        <mat-tab label="Pearls">
-          <div class="tabBody">
-            <mat-form-field appearance="outline">
-              <mat-label>Pearls / Gotchas</mat-label>
-              <textarea matInput [formControl]="form.controls.pearls" rows="10"></textarea>
-            </mat-form-field>
+                @if (stepsFA(phaseIndex).length === 0) {
+                  <div class="emptySteps">No steps yet — add a step for this phase.</div>
+                }
+              </div>
+            </mat-card>
+          }
+        </div>
 
-            <div class="noPrint callout">
-              Keep it tech-forward: “have clip applier loaded”, “extra suction if cement”, “dressings staged early”.
-            </div>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
+        <mat-divider class="divider"></mat-divider>
+
+        <mat-form-field appearance="outline" class="field">
+          <mat-label>Pearls / Notes</mat-label>
+          <textarea matInput formControlName="pearls" rows="4"></textarea>
+        </mat-form-field>
+      </form>
     </mat-card>
   </div>
 </section>
