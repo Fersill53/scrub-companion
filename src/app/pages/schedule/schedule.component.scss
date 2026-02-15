@@ -1,0 +1,262 @@
+.wrap {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  .title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .sub {
+    margin: 4px 0 0 0;
+    opacity: 0.75;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.15fr 0.85fr;
+
+  @media (max-width: 980px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  padding: 14px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+
+  .muted {
+    font-weight: 500;
+    opacity: 0.7;
+    font-size: 12px;
+  }
+}
+
+.section {
+  padding: 10px 0;
+}
+
+.sectionTitle {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dow.active {
+  border-width: 2px;
+}
+
+.dow.activeCall {
+  border-width: 2px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.full {
+  width: 100%;
+}
+
+.legend {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .tag {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    opacity: 0.85;
+  }
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+
+  .pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+    opacity: 0.9;
+  }
+}
+
+.empty {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  align-items: center;
+
+  .emptyTitle {
+    font-weight: 700;
+  }
+
+  .emptySub {
+    opacity: 0.75;
+    font-size: 13px;
+  }
+}
+
+.events {
+  display: grid;
+  gap: 0;
+}
+
+.eventRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+
+  .etype {
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0.9;
+  }
+
+  .etitle {
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  .emeta {
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.7;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
+    .dot {
+      opacity: 0.6;
+    }
+  }
+
+  .notes {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.85;
+  }
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+.small {
+  font-size: 13px;
+}
+
+.overrideForm {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+
+  .span2 {
+    grid-column: span 2;
+  }
+
+  .span4 {
+    grid-column: span 4;
+  }
+
+  @media (max-width: 900px) {
+    .span2 {
+      grid-column: span 2;
+    }
+    .span4 {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .span2,
+    .span4 {
+      grid-column: span 1;
+    }
+  }
+}
+
+.overrideActions {
+  grid-column: span 4;
+  display: flex;
+  justify-content: flex-end;
+
+  @media (max-width: 900px) {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 520px) {
+    grid-column: span 1;
+    justify-content: stretch;
+  }
+}
+
+/* Calendar highlights — class names from dateClass() */
+:host ::ng-deep .mat-calendar-body-cell.has-shift .mat-calendar-body-cell-content {
+  font-weight: 700;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.has-call .mat-calendar-body-cell-content {
+  border: 2px solid currentColor;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.has-payday .mat-calendar-body-cell-content {
+  text-decoration: underline;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.has-off .mat-calendar-body-cell-content {
+  opacity: 0.75;
+}

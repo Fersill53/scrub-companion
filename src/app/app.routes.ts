@@ -72,6 +72,7 @@ import { StudyQuizSettingsComponent } from './pages/study-center/quiz-settings/s
 import { SearchComponent } from './pages/smart-search/smart-search.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 
+import { ScheduleComponent } from './pages/schedule/schedule.component';
 
 export const routes: Routes = [
   {
@@ -98,6 +99,7 @@ export const routes: Routes = [
       { path: 'study/quiz/settings', component: StudyQuizSettingsComponent},
       { path: 'search', component: SearchComponent, title: 'Smart Search' },
       { path: 'profile', component: ProfileComponent, title: 'Profile' },
+      { path: 'schedule', component: ScheduleComponent, title: 'Schedule' },
 
       { path: '**', redirectTo: '' },
     ],

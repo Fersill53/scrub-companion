@@ -1,0 +1,237 @@
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Schedule</h1>
+      <p class="sub">Build your repeating shifts, call days, and paydays — then override as needed.</p>
+    </div>
+
+    <div class="actions">
+      <a mat-button routerLink="/">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+
+      <button mat-raised-button color="primary" type="button" (click)="saveSettings()">
+        <mat-icon>save</mat-icon>
+        Save Settings
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- SETTINGS -->
+    <mat-card class="card">
+      <div class="cardTitle">Template Settings</div>
+
+      <div class="section">
+        <div class="sectionTitle">Regular Shift Days</div>
+        <div class="chipRow">
+          @for (d of dows; track d.id) {
+            <button
+              mat-stroked-button
+              type="button"
+              class="dow"
+              [class.active]="settings().shiftTemplate.daysOfWeek.includes(d.id)"
+              (click)="toggleTemplateDay(d.id)"
+            >
+              {{ d.label }}
+            </button>
+          }
+        </div>
+
+        <div class="twoCol">
+          <mat-form-field appearance="outline">
+            <mat-label>Shift start</mat-label>
+            <input matInput [value]="settings().shiftTemplate.startTime" (input)="settings.set({ ...settings(), shiftTemplate: { ...settings().shiftTemplate, startTime: $any($event.target).value || '' } })" placeholder="07:00" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Shift end</mat-label>
+            <input matInput [value]="settings().shiftTemplate.endTime" (input)="settings.set({ ...settings(), shiftTemplate: { ...settings().shiftTemplate, endTime: $any($event.target).value || '' } })" placeholder="15:30" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="section">
+        <div class="sectionTitle">Call Days</div>
+        <div class="chipRow">
+          @for (d of dows; track d.id) {
+            <button
+              mat-stroked-button
+              type="button"
+              class="dow"
+              [class.activeCall]="settings().callDaysOfWeek.includes(d.id)"
+              (click)="toggleCallDay(d.id)"
+            >
+              {{ d.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="section">
+        <div class="sectionTitle">Payday</div>
+
+        <div class="twoCol">
+          <mat-form-field appearance="outline">
+            <mat-label>Anchor date</mat-label>
+            <input
+              matInput
+              type="date"
+              [value]="(settings().paydayRule.anchorDateIso | date:'yyyy-MM-dd') || ''"
+              (change)="setAnchorPayday($any($event.target).value)"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Every N days</mat-label>
+            <input
+              matInput
+              type="number"
+              [value]="settings().paydayRule.everyDays"
+              (input)="settings.set({ ...settings(), paydayRule: { ...settings().paydayRule, everyDays: Number($any($event.target).value || 14) } })"
+            />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Generate days ahead</mat-label>
+          <input
+            matInput
+            type="number"
+            [value]="settings().generateDaysAhead"
+            (input)="settings.set({ ...settings(), generateDaysAhead: Number($any($event.target).value || 90) })"
+          />
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <!-- CALENDAR -->
+    <mat-card class="card">
+      <div class="cardTitle">Calendar</div>
+
+      <mat-calendar
+        [selected]="selectedDate()"
+        (selectedChange)="selectDate($event)"
+        [dateClass]="dateClass"
+      ></mat-calendar>
+
+      <div class="legend">
+        <span class="tag shift">Shift</span>
+        <span class="tag call">Call</span>
+        <span class="tag payday">Payday</span>
+        <span class="tag off">Off</span>
+      </div>
+    </mat-card>
+
+    <!-- DAY DETAILS -->
+    <mat-card class="card">
+      <div class="cardTitle">
+        Day Details
+        <span class="muted">{{ selectedDate() | date:'fullDate' }}</span>
+      </div>
+
+      <div class="summary">
+        <div class="pill">Total: {{ daySummary().total }}</div>
+        <div class="pill">Shift: {{ daySummary().shift }}</div>
+        <div class="pill">Call: {{ daySummary().call }}</div>
+        <div class="pill">Payday: {{ daySummary().payday }}</div>
+        <div class="pill">Off: {{ daySummary().off }}</div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      @if (!dayEvents().length) {
+        <div class="empty">
+          <mat-icon>event_busy</mat-icon>
+          <div>
+            <div class="emptyTitle">No events</div>
+            <div class="emptySub">Use Overrides to add a one-off shift/call/payday note.</div>
+          </div>
+        </div>
+      } @else {
+        <div class="events">
+          @for (e of dayEvents(); track e.id) {
+            <div class="eventRow">
+              <div class="left">
+                <div class="etype">{{ prettyType(e.type) }}</div>
+                <div class="etitle">{{ e.title }}</div>
+                <div class="emeta">
+                  <span>{{ e.startIso | date:'shortTime' }}</span>
+                  @if (e.endIso) {
+                    <span class="dot">•</span>
+                    <span>{{ e.endIso | date:'shortTime' }}</span>
+                  }
+                  @if (e.source) {
+                    <span class="dot">•</span>
+                    <span class="muted">{{ e.source }}</span>
+                  }
+                </div>
+                @if (e.notes) {
+                  <div class="notes">{{ e.notes }}</div>
+                }
+              </div>
+
+              @if (isManual(e)) {
+                <button mat-icon-button type="button" aria-label="Delete" (click)="deleteEvent(e.id)">
+                  <mat-icon color="warn">delete</mat-icon>
+                </button>
+              }
+            </div>
+
+            <mat-divider></mat-divider>
+          }
+        </div>
+      }
+    </mat-card>
+
+    <!-- OVERRIDES -->
+    <mat-card class="card">
+      <div class="cardTitle">Overrides</div>
+      <p class="muted small">Add a one-off shift/call/payday (worked late, sent home early, extra call, etc.).</p>
+
+      <form class="overrideForm" [formGroup]="overrideForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="shift">Shift</mat-option>
+            <mat-option value="call">Call</mat-option>
+            <mat-option value="payday">Payday</mat-option>
+            <mat-option value="off">Off</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span2">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" placeholder="Worked late / Extra shift / Call shift..." />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start</mat-label>
+          <input matInput formControlName="startTime" placeholder="07:00" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End (optional)</mat-label>
+          <input matInput formControlName="endTime" placeholder="15:30" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span4">
+          <mat-label>Notes (optional)</mat-label>
+          <input matInput formControlName="notes" placeholder="Sent home early / Stayed 2 hours late / Called in..." />
+        </mat-form-field>
+
+        <div class="overrideActions">
+          <button mat-raised-button color="primary" type="button" (click)="addOverride()">
+            <mat-icon>add</mat-icon>
+            Add Override
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</section>

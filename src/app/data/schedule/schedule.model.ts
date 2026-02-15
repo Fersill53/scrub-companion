@@ -1,4 +1,4 @@
-export type ScheduleEventType = 'shift' | 'call' | 'payday' | 'note';
+export type ScheduleEventType = 'shift' | 'call' | 'payday' | 'note' | 'off';
 
 export type ScheduleEvent = {
     id: string;
