@@ -38,13 +38,13 @@ export class PreferenceCardViewComponent {
   ) {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.router.navigateByUrl('/cards');
+      this.router.navigateByUrl('/preference-cards');
       return;
     }
 
     const found = this.store.getById(id);
     if (!found) {
-      this.router.navigateByUrl('/cards');
+      this.router.navigateByUrl('/preference-cards');
       return;
     }
 

@@ -1,0 +1,71 @@
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Quiz Settings</h1>
+      <p class="sub">{{ summary() }}</p>
+    </div>
+
+    <div class="actions">
+      <a mat-button routerLink="/study">
+        <mat-icon>arrow_back</mat-icon>
+        Study Center
+      </a>
+
+      <button mat-stroked-button type="button" (click)="reset()">
+        <mat-icon>restart_alt</mat-icon>
+        Reset
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="card">
+    <div class="row">
+      <div class="row__left">
+        <div class="label">Timed quiz</div>
+        <div class="hint">Adds a simple timer per question.</div>
+      </div>
+
+      <mat-slide-toggle [checked]="settings().timed" (change)="toggleTimed($event.checked)"></mat-slide-toggle>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="row">
+      <div class="row__left">
+        <div class="label">Seconds per question</div>
+        <div class="hint">Only used when timed.</div>
+      </div>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Seconds</mat-label>
+        <mat-select
+          [value]="settings().secondsPerQuestion"
+          (selectionChange)="setSeconds($event.value)"
+          [disabled]="!settings().timed"
+        >
+          @for (s of secondsOptions; track s) {
+            <mat-option [value]="s">{{ s }} seconds</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="row">
+      <div class="row__left">
+        <div class="label">Questions per quiz</div>
+        <div class="hint">How many questions to pull from a pack.</div>
+      </div>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Count</mat-label>
+        <mat-select [value]="settings().questionCount" (selectionChange)="setCount($event.value)">
+          @for (c of countOptions; track c) {
+            <mat-option [value]="c">{{ c }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card>
+</section>

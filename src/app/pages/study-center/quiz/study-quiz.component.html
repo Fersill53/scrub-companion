@@ -1,0 +1,127 @@
+<section class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Quiz</h1>
+      <p class="sub">Built-in quiz packs — no creating, just training.</p>
+    </div>
+
+    <div class="actions">
+      <a mat-button routerLink="/study">
+        <mat-icon>arrow_back</mat-icon>
+        Study Center
+      </a>
+      <a mat-button routerLink="/study/quiz/settings">
+        <mat-icon>tune</mat-icon>
+        Settings
+      </a>
+    </div>
+  </header>
+
+  @if (mode() === 'pick') {
+    <mat-card class="card">
+      <div class="cardTitle">Choose a quiz pack</div>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Pack</mat-label>
+        <mat-select [value]="selectedPackId()" (selectionChange)="pickPack($event.value)">
+          @for (p of packs; track p.id) {
+            <mat-option [value]="p.id">{{ p.title }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="packInfo">
+        @for (p of packs; track p.id) {
+          @if (p.id === selectedPackId()) {
+            <div class="packTitle">{{ p.title }}</div>
+            <div class="packDesc">{{ p.description }}</div>
+            <div class="packMeta">
+              <span>{{ p.questions.length }} questions available</span>
+              <span class="dot">•</span>
+              <span>{{ settings().timed ? 'Timed' : 'Untimed' }}</span>
+              <span class="dot">•</span>
+              <span>{{ settings().questionCount }} questions per run</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="cta">
+        <button mat-raised-button color="primary" type="button" (click)="start()">
+          <mat-icon>play_arrow</mat-icon>
+          Start Quiz
+        </button>
+      </div>
+    </mat-card>
+  }
+
+  @if (mode() === 'quiz') {
+    <mat-card class="card">
+      <mat-progress-bar mode="determinate" [value]="progressPct()"></mat-progress-bar>
+
+      <div class="qTop">
+        <div class="qIndex">Question {{ index() + 1 }} / {{ questions().length }}</div>
+      </div>
+
+      @let q = current();
+
+      @if (q) {
+        <div class="prompt">{{ q.prompt }}</div>
+
+        <mat-radio-group class="choices" [value]="answers()[q.id] || ''" (change)="choose($event.value)">
+          @for (c of q.choices; track c.id) {
+            <mat-radio-button class="choice" [value]="c.id">
+              {{ c.text }}
+            </mat-radio-button>
+          }
+        </mat-radio-group>
+
+        <div class="nav">
+          <button mat-stroked-button type="button" (click)="prev()" [disabled]="index() === 0">
+            <mat-icon>chevron_left</mat-icon>
+            Back
+          </button>
+
+          <button mat-raised-button color="primary" type="button" (click)="next()" [disabled]="!canNext()">
+            @if (isLast()) {
+              Finish
+            } @else {
+              Next
+            }
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <div class="hint">
+          Tip: Answer to unlock Next. (Keeps it focused.)
+        </div>
+      }
+    </mat-card>
+  }
+
+  @if (mode() === 'results') {
+    <mat-card class="card">
+      <div class="resultsTop">
+        <div class="cardTitle">Results</div>
+        <div class="score">{{ score().correct }} / {{ score().total }}</div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="resultsActions">
+        <button mat-raised-button color="primary" type="button" (click)="retryMissed()">
+          <mat-icon>replay</mat-icon>
+          Retry Missed
+        </button>
+        <button mat-stroked-button type="button" (click)="start()">
+          <mat-icon>restart_alt</mat-icon>
+          Restart
+        </button>
+        <button mat-stroked-button type="button" (click)="backToPick()">
+          <mat-icon>list</mat-icon>
+          Pick Another Pack
+        </button>
+      </div>
+    </mat-card>
+  }
+</section>

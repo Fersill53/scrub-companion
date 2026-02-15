@@ -1,0 +1,134 @@
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.sub {
+  margin: 4px 0 0;
+  opacity: 0.75;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card {
+  padding: 12px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.field {
+  width: 100%;
+  max-width: 520px;
+}
+
+.packInfo {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.packTitle {
+  font-weight: 700;
+}
+
+.packDesc {
+  opacity: 0.8;
+}
+
+.packMeta {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.dot {
+  padding: 0 8px;
+  opacity: 0.5;
+}
+
+.cta {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.qTop {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0 6px;
+}
+
+.qIndex {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.prompt {
+  font-size: 18px;
+  font-weight: 650;
+  margin: 10px 0 8px;
+}
+
+.choices {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 14px;
+}
+
+.choice {
+  padding: 6px 4px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.resultsTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.score {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.resultsActions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

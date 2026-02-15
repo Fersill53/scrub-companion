@@ -568,6 +568,9 @@ export class PreferenceCardEditorComponent {
 }
 */
 
+// Forgot to add the steps for the next button
+
+/*
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -911,6 +914,383 @@ export class PreferenceCardEditorComponent {
   private makeItemFG(v?: Item): FormGroup {
     return this.fb.group({
       name: this.fb.nonNullable.control((v?.name ?? ''), [Validators.required]),
+      qty: this.fb.control<number | null>(v?.qty ?? null),
+      notes: this.fb.nonNullable.control(v?.notes ?? ''),
+    });
+  }
+
+  private readItems(arr: FormArray<FormGroup>): Item[] {
+    return arr.controls
+      .map(ctrl => ctrl.getRawValue() as unknown as { name: string; qty: number | null; notes: string })
+      .map(v => ({
+        name: (v.name ?? '').trim(),
+        qty: v.qty ?? null,
+        notes: (v.notes ?? '').trim(),
+      }))
+      .filter(x => x.name.length > 0);
+  }
+
+  private patchFromCard(c: PreferenceCard): void {
+    this.form.controls.id.setValue(c.id);
+    this.form.controls.title.setValue(c.title ?? '');
+    this.form.controls.specialty.setValue(c.specialty ?? '');
+    this.form.controls.procedure.setValue(c.procedure ?? '');
+    this.form.controls.surgeon.setValue(c.surgeon ?? '');
+    this.form.controls.facility.setValue(c.facility ?? '');
+    this.form.controls.tags.setValue(c.tags ?? []);
+
+    this.form.controls.positioning.setValue(c.positioning ?? '');
+    this.form.controls.prepDrape.setValue(c.prepDrape ?? '');
+    this.form.controls.pearls.setValue(c.pearls ?? '');
+
+    this.replaceItems(this.equipmentFA, c.equipment ?? []);
+    this.replaceItems(this.instrumentsFA, c.instruments ?? []);
+    this.replaceItems(this.suppliesFA, c.supplies ?? []);
+    this.replaceItems(this.suturesFA, c.sutures ?? []);
+  }
+
+  private replaceItems(arr: FormArray<FormGroup>, items: Item[]): void {
+    while (arr.length) arr.removeAt(0);
+    (items.length ? items : [{ name: '', qty: null, notes: '' }]).forEach(i => arr.push(this.makeItemFG(i)));
+  }
+}
+*/
+
+import { CommonModule } from '@angular/common';
+import { Component, computed, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatStepperModule } from '@angular/material/stepper';
+
+type Item = { name: string; qty?: number | null; notes?: string };
+type PreferenceCard = {
+  id: string;
+  title: string;
+  specialty?: string;
+  procedure: string;
+  surgeon?: string;
+  facility?: string;
+  tags: string[];
+
+  positioning?: string;
+  prepDrape?: string;
+  pearls?: string;
+
+  equipment: Item[];
+  instruments: Item[];
+  supplies: Item[];
+  sutures: Item[];
+
+  createdAt: string;
+  updatedAt: string;
+};
+
+type Template = {
+  id: string;
+  label: string;
+  patch: Partial<PreferenceCard>;
+};
+
+const STORAGE_KEY = 'scrubcompanion_prefcards_v1';
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function safeUuid(): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const c: any = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return 'pc_' + Math.random().toString(16).slice(2) + '_' + Date.now().toString(16);
+}
+
+function safeLoadAll(): PreferenceCard[] {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as PreferenceCard[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAll(cards: PreferenceCard[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+}
+
+@Component({
+  selector: 'app-preference-card-editor',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSnackBarModule,
+    MatStepperModule,
+  ],
+  templateUrl: './preference-card-editor.component.html',
+  styleUrl: './preference-card-editor.component.scss',
+})
+export class PreferenceCardEditorComponent {
+  readonly specialties: string[] = [
+    'Ortho',
+    'Neuro',
+    'General',
+    'OB/GYN',
+    'ENT',
+    'Plastics',
+    'Urology',
+    'Vascular',
+    'Cardiac',
+    'Ophthalmology',
+    'Peds',
+  ];
+
+  readonly templates: Template[] = [
+    {
+      id: 'blank',
+      label: 'Blank (no changes)',
+      patch: {},
+    },
+    {
+      id: 'ortho-basic',
+      label: 'Ortho (basic skeleton)',
+      patch: {
+        specialty: 'Ortho',
+        positioning: 'Supine (confirm surgeon preference)',
+        prepDrape: 'Per surgeon preference; include stockinette if needed',
+        equipment: [
+          { name: 'Tourniquet', qty: 1, notes: 'If applicable' },
+          { name: 'Bovie', qty: 1 },
+          { name: 'Suction', qty: 1 },
+        ],
+      },
+    },
+    {
+      id: 'lap-basic',
+      label: 'General (lap basic skeleton)',
+      patch: {
+        specialty: 'General',
+        equipment: [
+          { name: 'Tower', qty: 1 },
+          { name: 'Insufflator', qty: 1 },
+          { name: 'Light source', qty: 1 },
+          { name: 'Camera head', qty: 1 },
+        ],
+        supplies: [
+          { name: 'Trocar set', qty: 1, notes: 'Sizes per surgeon' },
+          { name: 'Endo bag', qty: 1 },
+        ],
+      },
+    },
+  ];
+
+  readonly tagDraft = signal('');
+
+  private readonly fb = new FormBuilder();
+
+  readonly form = this.fb.group({
+    id: this.fb.nonNullable.control(''),
+
+    title: this.fb.nonNullable.control('', [Validators.required]),
+    specialty: this.fb.nonNullable.control(''),
+    procedure: this.fb.nonNullable.control('', [Validators.required]),
+    surgeon: this.fb.nonNullable.control(''),
+    facility: this.fb.nonNullable.control(''),
+    tags: this.fb.nonNullable.control<string[]>([]),
+
+    positioning: this.fb.nonNullable.control(''),
+    prepDrape: this.fb.nonNullable.control(''),
+    pearls: this.fb.nonNullable.control(''),
+
+    equipment: this.fb.array([] as FormGroup[]),
+    instruments: this.fb.array([] as FormGroup[]),
+    supplies: this.fb.array([] as FormGroup[]),
+    sutures: this.fb.array([] as FormGroup[]),
+  });
+
+  readonly editingId = signal<string | null>(null);
+
+  readonly titleText = computed(() => (this.editingId() ? 'Edit Preference Card' : 'New Preference Card'));
+
+  get equipmentFA(): FormArray<FormGroup> {
+    return this.form.controls['equipment'] as unknown as FormArray<FormGroup>;
+  }
+  get instrumentsFA(): FormArray<FormGroup> {
+    return this.form.controls['instruments'] as unknown as FormArray<FormGroup>;
+  }
+  get suppliesFA(): FormArray<FormGroup> {
+    return this.form.controls['supplies'] as unknown as FormArray<FormGroup>;
+  }
+  get suturesFA(): FormArray<FormGroup> {
+    return this.form.controls['sutures'] as unknown as FormArray<FormGroup>;
+  }
+
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly snack: MatSnackBar,
+  ) {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.editingId.set(id);
+      const found = safeLoadAll().find(c => c.id === id);
+      if (found) this.patchFromCard(found);
+      else this.seedDefaults();
+    } else {
+      this.seedDefaults();
+    }
+  }
+
+  onTemplateChange(ev: MatSelectChange): void {
+    const id = String(ev.value || '');
+    const t = this.templates.find(x => x.id === id);
+    if (!t) return;
+
+    const p = t.patch;
+    if (p.specialty != null) this.form.controls.specialty.setValue(p.specialty ?? '');
+    if (p.positioning != null) this.form.controls.positioning.setValue(p.positioning ?? '');
+    if (p.prepDrape != null) this.form.controls.prepDrape.setValue(p.prepDrape ?? '');
+    if (p.pearls != null) this.form.controls.pearls.setValue(p.pearls ?? '');
+
+    if (p.equipment) this.replaceItems(this.equipmentFA, p.equipment);
+    if (p.instruments) this.replaceItems(this.instrumentsFA, p.instruments);
+    if (p.supplies) this.replaceItems(this.suppliesFA, p.supplies);
+    if (p.sutures) this.replaceItems(this.suturesFA, p.sutures);
+
+    this.snack.open(`Template applied: ${t.label}`, 'OK', { duration: 2000 });
+  }
+
+  addItem(section: 'equipment' | 'instruments' | 'supplies' | 'sutures'): void {
+    this.sectionFA(section).push(this.makeItemFG());
+  }
+
+  removeItem(section: 'equipment' | 'instruments' | 'supplies' | 'sutures', index: number): void {
+    this.sectionFA(section).removeAt(index);
+  }
+
+  addTag(): void {
+    const raw = this.tagDraft().trim();
+    if (!raw) return;
+
+    const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+    const existing = new Set(this.form.controls.tags.value ?? []);
+    parts.forEach(p => existing.add(p));
+
+    this.form.controls.tags.setValue([...existing]);
+    this.tagDraft.set('');
+  }
+
+  removeTag(tag: string): void {
+    this.form.controls.tags.setValue((this.form.controls.tags.value ?? []).filter(t => t !== tag));
+  }
+
+  save(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snack.open('Fix required fields (Title + Procedure).', 'OK', { duration: 2600 });
+      return;
+    }
+
+    const raw = this.form.getRawValue() as unknown as {
+      id: string;
+      title: string;
+      specialty: string;
+      procedure: string;
+      surgeon: string;
+      facility: string;
+      tags: string[];
+      positioning: string;
+      prepDrape: string;
+      pearls: string;
+    };
+
+    const all = safeLoadAll();
+    const existing = all.find(c => c.id === (raw.id || this.editingId() || ''));
+
+    const card: PreferenceCard = {
+      id: raw.id || existing?.id || safeUuid(),
+      title: (raw.title ?? '').trim(),
+      specialty: (raw.specialty ?? '').trim(),
+      procedure: (raw.procedure ?? '').trim(),
+      surgeon: (raw.surgeon ?? '').trim(),
+      facility: (raw.facility ?? '').trim(),
+      tags: raw.tags ?? [],
+
+      positioning: (raw.positioning ?? '').trim(),
+      prepDrape: (raw.prepDrape ?? '').trim(),
+      pearls: (raw.pearls ?? '').trim(),
+
+      equipment: this.readItems(this.equipmentFA),
+      instruments: this.readItems(this.instrumentsFA),
+      supplies: this.readItems(this.suppliesFA),
+      sutures: this.readItems(this.suturesFA),
+
+      createdAt: existing?.createdAt ?? nowIso(),
+      updatedAt: nowIso(),
+    };
+
+    const next = existing ? all.map(c => (c.id === card.id ? card : c)) : [card, ...all];
+    saveAll(next);
+
+    this.snack.open('Preference card saved.', 'OK', { duration: 2200 });
+    this.router.navigate(['/preference-cards/view', card.id]);
+  }
+
+  cancel(): void {
+    const id = this.editingId();
+    if (id) this.router.navigate(['/preference-cards/view', id]);
+    else this.router.navigate(['/preference-cards']);
+  }
+
+  private seedDefaults(): void {
+    this.form.controls.id.setValue(safeUuid());
+    this.form.controls.tags.setValue([]);
+
+    this.equipmentFA.push(this.makeItemFG());
+    this.instrumentsFA.push(this.makeItemFG());
+    this.suppliesFA.push(this.makeItemFG());
+    this.suturesFA.push(this.makeItemFG());
+  }
+
+  private sectionFA(section: 'equipment' | 'instruments' | 'supplies' | 'sutures'): FormArray<FormGroup> {
+    switch (section) {
+      case 'equipment':
+        return this.equipmentFA;
+      case 'instruments':
+        return this.instrumentsFA;
+      case 'supplies':
+        return this.suppliesFA;
+      case 'sutures':
+        return this.suturesFA;
+    }
+  }
+
+  private makeItemFG(v?: Item): FormGroup {
+    return this.fb.group({
+      // IMPORTANT: do NOT require name here, or it blocks stepper "Next" in linear mode.
+      // We filter empty rows out on save anyway.
+      name: this.fb.nonNullable.control(v?.name ?? ''),
       qty: this.fb.control<number | null>(v?.qty ?? null),
       notes: this.fb.nonNullable.control(v?.notes ?? ''),
     });
