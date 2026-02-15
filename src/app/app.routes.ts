@@ -80,6 +80,8 @@ export const routes: Routes = [
     component: AppShellComponent,
     children: [
       { path: '', component: DashboardComponent, title: 'Dashboard' },
+      { path: 'schedule', component: ScheduleComponent, title: 'Schedule' },
+
 
       // ✅ Preference Cards
       { path: 'preference-cards', component: PreferenceCardsComponent, title: 'Preference Cards' },
@@ -99,7 +101,7 @@ export const routes: Routes = [
       { path: 'study/quiz/settings', component: StudyQuizSettingsComponent},
       { path: 'search', component: SearchComponent, title: 'Smart Search' },
       { path: 'profile', component: ProfileComponent, title: 'Profile' },
-      { path: 'schedule', component: ScheduleComponent, title: 'Schedule' },
+      
 
       { path: '**', redirectTo: '' },
     ],

@@ -39,6 +39,7 @@ export class AppShellComponent {
 
   readonly nav: NavItem[] = [
     { label: 'Dashboard', icon: 'space_dashboard', path: '/', exact: true },
+    { label: 'Schedule', icon: 'calendar_month', path: '/schedule', exact: false },
     { label: 'Preference Cards', icon: 'assignment', path: '/cards' },
     { label: 'OR Setup Builder', icon: 'view_quilt', path: '/setup' },
     { label: 'Playbooks', icon: 'menu_book', path: '/playbooks' },
