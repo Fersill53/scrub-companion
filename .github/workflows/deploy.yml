@@ -1,0 +1,70 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build Angular (GitHub Pages base href)
+        run: npx ng build --configuration production --base-href /scrub-companion/
+
+      - name: Detect output folder
+        id: out
+        run: |
+          echo "Dist contents:"
+          ls -la dist || true
+
+          # If Angular outputs dist/<app>/browser, prefer that.
+          if ls dist/*/browser >/dev/null 2>&1; then
+            OUT_DIR=$(ls -d dist/*/browser | head -n 1)
+          else
+            # Otherwise use dist/<app>
+            OUT_DIR=$(ls -d dist/* | head -n 1)
+          fi
+
+          echo "Using output dir: $OUT_DIR"
+          echo "out_dir=$OUT_DIR" >> $GITHUB_OUTPUT
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.out.outputs.out_dir }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
