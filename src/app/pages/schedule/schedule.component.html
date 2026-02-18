@@ -340,12 +340,17 @@
         <div class="twoCol">
           <mat-form-field appearance="outline">
             <mat-label>Anchor date</mat-label>
+
             <input
               matInput
-              type="date"
-              [value]="settings().paydayRule.anchorDateIso | date:'yyyy-MM-dd'"
-              (input)="setAnchorPayday($any($event.target).value)"
+              [matDatepicker]="payAnchorPicker"
+              [value]="paydayAnchorDate()"
+              (dateChange)="setAnchorPaydayDate($event.value)"
+              placeholder="Pick a date"
+              readonly
             />
+            <mat-datepicker-toggle matSuffix [for]="payAnchorPicker"></mat-datepicker-toggle>
+            <mat-datepicker #payAnchorPicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -354,7 +359,7 @@
               matInput
               type="number"
               [value]="settings().paydayRule.cadenceDays"
-              (input)="setCadenceDays($any($event.target).value)"
+              (input)="setCadenceDays($any($event.target).value || '')"
             />
           </mat-form-field>
         </div>
@@ -365,18 +370,17 @@
             matInput
             type="number"
             [value]="settings().generateDaysAhead"
-            (input)="setGenerateDaysAhead($any($event.target).value)"
+            (input)="setGenerateDaysAhead($any($event.target).value || '')"
           />
         </mat-form-field>
       </div>
     </mat-card>
 
     <!-- CALENDAR -->
-    <mat-card class="card calendarCard">
+    <mat-card class="card">
       <div class="cardTitle">Calendar</div>
 
       <mat-calendar
-        class="calendar"
         [selected]="selectedDate()"
         (selectedChange)="selectDate($event)"
         [dateClass]="dateClass"
@@ -391,18 +395,18 @@
     </mat-card>
 
     <!-- DAY DETAILS -->
-    <mat-card class="card dayCard">
-      <div class="dayHeader">
-        <div class="cardTitle">Day Details</div>
-        <div class="muted">{{ selectedDate() | date:'fullDate' }}</div>
+    <mat-card class="card">
+      <div class="cardTitle">
+        Day Details
+        <span class="muted">{{ selectedDate() | date:'fullDate' }}</span>
       </div>
 
-      <div class="summaryGrid">
-        <div class="pill"><span>Total</span><strong>{{ daySummary().total }}</strong></div>
-        <div class="pill"><span>Shift</span><strong>{{ daySummary().shift }}</strong></div>
-        <div class="pill"><span>Call</span><strong>{{ daySummary().call }}</strong></div>
-        <div class="pill"><span>Payday</span><strong>{{ daySummary().payday }}</strong></div>
-        <div class="pill"><span>Off</span><strong>{{ daySummary().off }}</strong></div>
+      <div class="summary">
+        <div class="pill">Total: {{ daySummary().total }}</div>
+        <div class="pill">Shift: {{ daySummary().shift }}</div>
+        <div class="pill">Call: {{ daySummary().call }}</div>
+        <div class="pill">Payday: {{ daySummary().payday }}</div>
+        <div class="pill">Off: {{ daySummary().off }}</div>
       </div>
 
       <mat-divider></mat-divider>
@@ -412,7 +416,7 @@
           <mat-icon>event_busy</mat-icon>
           <div>
             <div class="emptyTitle">No events</div>
-            <div class="emptySub">Use Overrides to add a one-off shift/call/payday/off note.</div>
+            <div class="emptySub">Use Overrides to add a one-off shift/call/payday note.</div>
           </div>
         </div>
       } @else {
@@ -422,7 +426,6 @@
               <div class="left">
                 <div class="etype">{{ prettyType(e.type) }}</div>
                 <div class="etitle">{{ e.title }}</div>
-
                 <div class="emeta">
                   <span>{{ e.startIso | date:'shortTime' }}</span>
                   @if (e.endIso) {
@@ -434,7 +437,6 @@
                     <span class="muted">{{ e.source }}</span>
                   }
                 </div>
-
                 @if (e.notes) {
                   <div class="notes">{{ e.notes }}</div>
                 }
@@ -446,15 +448,17 @@
                 </button>
               }
             </div>
+
+            <mat-divider></mat-divider>
           }
         </div>
       }
     </mat-card>
 
     <!-- OVERRIDES -->
-    <mat-card class="card overridesCard">
+    <mat-card class="card">
       <div class="cardTitle">Overrides</div>
-      <p class="muted small">Worked late, sent home early, extra shift/call, off day — add it here.</p>
+      <p class="muted small">Add a one-off shift/call/payday (worked late, sent home early, extra call, etc.).</p>
 
       <form class="overrideForm" [formGroup]="overrideForm">
         <mat-form-field appearance="outline">
