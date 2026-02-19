@@ -272,3 +272,32 @@
     grid-column: 1 / -1;
   }
 }
+
+:host ::ng-deep .mat-calendar-body-cell.cal-shift .mat-calendar-body-cell-content {
+    background: #1e88e5; //Blue
+    color: #fff;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.cal-call .mat-calendar-body-cell-content {
+    background: #7e57c2;
+    color: #fff;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.cal-payday .mat-calendar-body-cell-content {
+    background: #43a047;
+    color: #fff;
+}
+
+:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content {
+    background: #e53935;
+    color: #fff;
+}
+
+/* Keep the selected day readable */
+:host ::ng-deep .mat-calendar-body-selected.cal-shift .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-selected.cal-call .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-selected.cal-payday .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-selected.cal-override .mat-calendar-body-cell-content {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}

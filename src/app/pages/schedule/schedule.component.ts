@@ -1049,10 +1049,12 @@ export class ScheduleComponent {
 
     if (!events.length) return '';
 
+    if (events.some(e => e.source === 'override' || e.source === 'manual')) return 'cal-override';
+
     const types = new Set(events.map(e => e.type));
-    if (types.has('payday')) return 'cal-payday';
-    if (types.has('call')) return 'cal-call';
-    if (types.has('shift')) return 'cal-shift';
+    if (types.has('payday')) return 'cal-payday'; // Green
+    if (types.has('call')) return 'cal-call'; // Purple
+    if (types.has('shift')) return 'cal-shift'; // Blue
     if (types.has('off')) return 'cal-off';
     return '';
   };
