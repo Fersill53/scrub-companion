@@ -281,3 +281,38 @@
   .mat-calendar-body-cell-content {
   border-width: 2px;
 }
+
+/* ✅ Material dateClass is applied to the CELL (usually a <td>), not the inner span/button.
+   So target ANY element with your class, then the visible circle content. */
+
+:host ::ng-deep .cal-override .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-override .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content {
+  background: #d32f2f !important; /* red */
+  color: #fff !important;
+}
+
+/* Keep the others too (also with !important so theme can’t override) */
+:host ::ng-deep .cal-payday .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-payday .mat-calendar-body-cell-content {
+  background: #2e7d32 !important; /* green */
+  color: #fff !important;
+}
+
+:host ::ng-deep .cal-shift .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-shift .mat-calendar-body-cell-content {
+  background: #1e88e5 !important; /* blue */
+  color: #fff !important;
+}
+
+:host ::ng-deep .cal-call .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-call .mat-calendar-body-cell-content {
+  background: #7b1fa2 !important; /* purple */
+  color: #fff !important;
+}
+
+:host ::ng-deep .cal-off .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-off .mat-calendar-body-cell-content {
+  background: #616161 !important; /* gray */
+  color: #fff !important;
+}
