@@ -1,155 +1,176 @@
 .wrap {
-  display: block;
+  padding: 16px;
 }
 
 .header {
   display: flex;
+  gap: 16px;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
   margin-bottom: 16px;
-}
 
-.title {
-  margin: 0;
-  font-size: 26px;
-  line-height: 1.2;
-}
+  .title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
 
-.sub {
-  margin: 6px 0 0;
-  opacity: 0.8;
-}
+  .sub {
+    margin: 4px 0 0;
+    opacity: 0.75;
+  }
 
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
 
 .grid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
   gap: 16px;
+  grid-template-columns: 1.1fr 0.9fr;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
-  border-radius: 16px;
+  padding: 14px;
 }
 
 .cardTitle {
   font-weight: 700;
   margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  .muted {
+    font-weight: 500;
+    opacity: 0.7;
+    font-size: 12px;
+    margin-left: 10px;
+  }
 }
 
 .section {
-  padding: 6px 0 14px;
+  padding: 10px 0;
 }
 
 .sectionTitle {
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-weight: 650;
+  margin-bottom: 8px;
+  opacity: 0.9;
 }
 
 .twoCol {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .full {
   width: 100%;
+  margin-top: 8px;
 }
 
 .chipRow {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .dow.active {
-  font-weight: 700;
+  border-color: #1e88e5;
 }
 
 .dow.activeCall {
-  font-weight: 700;
+  border-color: #7b1fa2;
 }
 
 .legend {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
   margin-top: 12px;
 }
 
 .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  color: white;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
 }
 
 .tag.shift {
-  background: #1e88e5; // blue
+  border-color: rgba(30, 136, 229, 0.6);
 }
+
 .tag.call {
-  background: #8e24aa; // purple
+  border-color: rgba(123, 31, 162, 0.6);
 }
+
 .tag.payday {
-  background: #2e7d32; // green
+  border-color: rgba(46, 125, 50, 0.6);
 }
+
 .tag.override {
-  background: #c62828; // red
+  border-color: rgba(211, 47, 47, 0.6);
 }
+
 .tag.off {
-  background: #546e7a; // gray-blue
+  border-color: rgba(97, 97, 97, 0.6);
 }
 
 .summary {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
-  margin: 10px 0;
+  gap: 8px;
+  margin: 10px 0 12px;
 }
 
 .pill {
-  padding: 6px 10px;
-  border-radius: 999px;
   font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
   background: rgba(0, 0, 0, 0.06);
-}
-
-.muted {
-  opacity: 0.7;
-  margin-left: 10px;
-}
-
-.small {
-  margin-top: 0;
-  margin-bottom: 12px;
 }
 
 .empty {
   display: flex;
-  align-items: center;
   gap: 12px;
-  padding: 14px 0;
+  align-items: center;
+  padding: 16px 6px;
   opacity: 0.85;
-}
 
-.emptyTitle {
-  font-weight: 700;
-}
+  mat-icon {
+    opacity: 0.75;
+  }
 
-.emptySub {
-  opacity: 0.75;
+  .emptyTitle {
+    font-weight: 700;
+  }
+
+  .emptySub {
+    opacity: 0.75;
+  }
 }
 
 .events {
-  margin-top: 6px;
+  padding-top: 10px;
 }
 
 .eventRow {
@@ -158,50 +179,60 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 0;
-}
 
-.eventRow.isOverride .etype {
-  color: #c62828;
-  font-weight: 700;
-}
+  .etype {
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0.85;
+  }
 
-.left {
-  min-width: 0;
-}
+  .etitle {
+    font-weight: 700;
+    margin-top: 2px;
+  }
 
-.etype {
-  font-weight: 700;
-  margin-bottom: 2px;
-}
+  .emeta {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 4px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-.etitle {
-  font-size: 14px;
-  margin-bottom: 6px;
-}
+  .dot {
+    opacity: 0.5;
+  }
 
-.emeta {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.dot {
-  margin: 0 6px;
-}
-
-.notes {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: 0.85;
+  .notes {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.8;
+  }
 }
 
 .overrideForm {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr 1fr;
   gap: 12px;
+  margin-top: 10px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 650px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .span2 {
   grid-column: span 2;
+
+  @media (max-width: 1100px) {
+    grid-column: auto;
+  }
 }
 
 .span4 {
@@ -214,50 +245,39 @@
   justify-content: flex-end;
 }
 
-/* Responsive */
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .overrideForm {
-    grid-template-columns: 1fr;
-  }
-
-  .span2 {
-    grid-column: auto;
-  }
+/* -------------------------------------------------------
+   ✅ CALENDAR COLORS
+   dateClass adds a class to the <td> cell
+   The visible circle is .mat-calendar-body-cell-content
+------------------------------------------------------- */
+:host ::ng-deep .mat-calendar-body-cell.cal-payday .mat-calendar-body-cell-content {
+  background: #2e7d32; /* green */
+  color: #fff;
 }
 
-/* ------- Calendar cell coloring ------- */
-/* Angular Material calendar cells allow styling via dateClass returning class on cell content */
-
-:host ::ng-deep .cal-shift .mat-calendar-body-cell-content {
-  background: #1e88e5 !important; /* blue */
-  color: white !important;
-  border-radius: 999px;
+:host ::ng-deep .mat-calendar-body-cell.cal-shift .mat-calendar-body-cell-content {
+  background: #1e88e5; /* blue */
+  color: #fff;
 }
 
-:host ::ng-deep .cal-call .mat-calendar-body-cell-content {
-  background: #8e24aa !important; /* purple */
-  color: white !important;
-  border-radius: 999px;
+:host ::ng-deep .mat-calendar-body-cell.cal-call .mat-calendar-body-cell-content {
+  background: #7b1fa2; /* purple */
+  color: #fff;
 }
 
-:host ::ng-deep .cal-payday .mat-calendar-body-cell-content {
-  background: #2e7d32 !important; /* green */
-  color: white !important;
-  border-radius: 999px;
+:host ::ng-deep .mat-calendar-body-cell.cal-off .mat-calendar-body-cell-content {
+  background: #616161; /* gray */
+  color: #fff;
 }
 
-:host ::ng-deep .cal-override .mat-calendar-body-cell-content {
-  background: #c62828 !important; /* red */
-  color: white !important;
-  border-radius: 999px;
+/* 🔴 Highest priority: override/manual */
+:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content {
+  background: #d32f2f; /* red */
+  color: #fff;
 }
 
-:host ::ng-deep .cal-off .mat-calendar-body-cell-content {
-  background: #546e7a !important; /* gray-blue */
-  color: white !important;
-  border-radius: 999px;
+/* Make sure today's outline still looks ok */
+:host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected)
+  .mat-calendar-body-cell-content {
+  border-width: 2px;
 }

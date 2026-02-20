@@ -530,6 +530,7 @@
 
       <div class="section">
         <div class="sectionTitle">Regular Shift Days</div>
+
         <div class="chipRow">
           @for (d of dows; track d.id) {
             <button
@@ -550,7 +551,7 @@
             <input
               matInput
               [value]="settings().shiftTemplate.startTime"
-              (input)="setShiftStart($any($event.target).value || '')"
+              (input)="setShiftStart($any($event.target).value)"
               placeholder="07:00"
             />
           </mat-form-field>
@@ -560,7 +561,7 @@
             <input
               matInput
               [value]="settings().shiftTemplate.endTime"
-              (input)="setShiftEnd($any($event.target).value || '')"
+              (input)="setShiftEnd($any($event.target).value)"
               placeholder="15:30"
             />
           </mat-form-field>
@@ -571,6 +572,7 @@
 
       <div class="section">
         <div class="sectionTitle">Call Days</div>
+
         <div class="chipRow">
           @for (d of dows; track d.id) {
             <button
@@ -592,17 +594,15 @@
         <div class="sectionTitle">Payday</div>
 
         <div class="twoCol">
+          <!-- Anchor date: keep as native date input so it's simple + reliable on GH Pages -->
           <mat-form-field appearance="outline">
             <mat-label>Anchor date</mat-label>
             <input
               matInput
-              [matDatepicker]="anchorPicker"
-              [value]="anchorDateValue()"
-              (dateChange)="setAnchorPaydayDate($any($event.value))"
-              placeholder="Pick a date"
+              type="date"
+              [value]="(settings().paydayRule.anchorDateIso | date:'yyyy-MM-dd') || ''"
+              (change)="setAnchorPayday($any($event.target).value)"
             />
-            <mat-datepicker-toggle matSuffix [for]="anchorPicker"></mat-datepicker-toggle>
-            <mat-datepicker #anchorPicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -611,7 +611,7 @@
               matInput
               type="number"
               [value]="settings().paydayRule.cadenceDays"
-              (input)="setCadenceDays($any($event.target).value || '')"
+              (input)="setCadenceDays($any($event.target).value)"
             />
           </mat-form-field>
         </div>
@@ -622,7 +622,7 @@
             matInput
             type="number"
             [value]="settings().generateDaysAhead"
-            (input)="setGenerateDaysAhead($any($event.target).value || '')"
+            (input)="setGenerateDaysAhead($any($event.target).value)"
           />
         </mat-form-field>
       </div>
@@ -669,16 +669,17 @@
           <mat-icon>event_busy</mat-icon>
           <div>
             <div class="emptyTitle">No events</div>
-            <div class="emptySub">Use Overrides to add a one-off shift/call/payday note.</div>
+            <div class="emptySub">Use Overrides to add a one-off shift/call/payday/off note.</div>
           </div>
         </div>
       } @else {
         <div class="events">
           @for (e of dayEvents(); track e.id) {
-            <div class="eventRow" [class.isOverride]="isManual(e)">
+            <div class="eventRow" [class.manual]="isManual(e)" [class.gen]="!isManual(e)">
               <div class="left">
                 <div class="etype">{{ prettyType(e.type) }}</div>
                 <div class="etitle">{{ e.title }}</div>
+
                 <div class="emeta">
                   <span>{{ e.startIso | date:'shortTime' }}</span>
                   @if (e.endIso) {
@@ -690,6 +691,7 @@
                     <span class="muted">{{ e.source }}</span>
                   }
                 </div>
+
                 @if (e.notes) {
                   <div class="notes">{{ e.notes }}</div>
                 }
