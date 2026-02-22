@@ -36,3 +36,41 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+/* --- Calendar color override (append only) --- */
+
+/* override/manual = RED (highest priority) */
+:host ::ng-deep td.cal-override .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content,
+:host ::ng-deep .cal-override .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell-content.cal-override {
+  background: #d32f2f !important;
+  color: #fff !important;
+}
+
+/* payday = GREEN */
+:host ::ng-deep td.cal-payday .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-payday .mat-calendar-body-cell-content,
+:host ::ng-deep .cal-payday .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell-content.cal-payday {
+  background: #2e7d32 !important;
+  color: #fff !important;
+}
+
+/* shift = BLUE */
+:host ::ng-deep td.cal-shift .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-shift .mat-calendar-body-cell-content,
+:host ::ng-deep .cal-shift .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell-content.cal-shift {
+  background: #1e88e5 !important;
+  color: #fff !important;
+}
+
+/* call = PURPLE */
+:host ::ng-deep td.cal-call .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-call .mat-calendar-body-cell-content,
+:host ::ng-deep .cal-call .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell-content.cal-call {
+  background: #7b1fa2 !important;
+  color: #fff !important;
+}
