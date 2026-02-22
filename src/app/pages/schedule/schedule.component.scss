@@ -316,3 +316,38 @@
   background: #616161 !important; /* gray */
   color: #fff !important;
 }
+
+/* --- Calendar color markers --- */
+/* Because encapsulation is None, we can style MatCalendar internals directly */
+
+.cal-payday .mat-calendar-body-cell-content {
+  background: #2e7d32 !important; /* green */
+  color: #fff !important;
+}
+
+.cal-shift .mat-calendar-body-cell-content {
+  background: #1e88e5 !important; /* blue */
+  color: #fff !important;
+}
+
+.cal-call .mat-calendar-body-cell-content {
+  background: #7b1fa2 !important; /* purple */
+  color: #fff !important;
+}
+
+.cal-off .mat-calendar-body-cell-content {
+  background: #616161 !important; /* gray */
+  color: #fff !important;
+}
+
+/* ✅ Overrides/manual ALWAYS red (highest priority) */
+.cal-override .mat-calendar-body-cell-content {
+  background: #d32f2f !important; /* red */
+  color: #fff !important;
+}
+
+/* Optional: make the “today” outline still visible */
+.mat-calendar-body-today:not(.mat-calendar-body-selected)
+  .mat-calendar-body-cell-content {
+  border-color: rgba(0, 0, 0, 0.35);
+}
