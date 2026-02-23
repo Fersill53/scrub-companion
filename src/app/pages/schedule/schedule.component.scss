@@ -271,7 +271,7 @@
 }
 
 /* 🔴 Highest priority: override/manual */
-:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content {
+:host ::ng-deep .mat-calendar-body-cell.cal-manual .mat-calendar-body-cell-content {
   background: #d32f2f; /* red */
   color: #fff;
 }
@@ -285,9 +285,9 @@
 /* ✅ Material dateClass is applied to the CELL (usually a <td>), not the inner span/button.
    So target ANY element with your class, then the visible circle content. */
 
-:host ::ng-deep .cal-override .mat-calendar-body-cell-content,
-:host ::ng-deep td.cal-override .mat-calendar-body-cell-content,
-:host ::ng-deep .mat-calendar-body-cell.cal-override .mat-calendar-body-cell-content {
+:host ::ng-deep .cal-manual .mat-calendar-body-cell-content,
+:host ::ng-deep td.cal-manual .mat-calendar-body-cell-content,
+:host ::ng-deep .mat-calendar-body-cell.cal-manual .mat-calendar-body-cell-content {
   background: #d32f2f !important; /* red */
   color: #fff !important;
 }
@@ -341,7 +341,7 @@
 }
 
 /* ✅ Overrides/manual ALWAYS red (highest priority) */
-.cal-override .mat-calendar-body-cell-content {
+.cal-manual .mat-calendar-body-cell-content {
   background: #d32f2f !important; /* red */
   color: #fff !important;
 }

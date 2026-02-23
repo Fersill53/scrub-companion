@@ -715,7 +715,7 @@
       <div class="cardTitle">Overrides</div>
       <p class="muted small">Add a one-off shift/call/payday/off (worked late, sent home early, extra call, etc.).</p>
 
-      <form class="overrideForm" [formGroup]="overrideForm">
+      <form class="overrideForm" [formGroup]="eventForm">
         <mat-form-field appearance="outline">
           <mat-label>Type</mat-label>
           <mat-select formControlName="type">
@@ -747,7 +747,7 @@
         </mat-form-field>
 
         <div class="overrideActions">
-          <button mat-raised-button color="primary" type="button" (click)="addOverride()">
+          <button mat-raised-button color="primary" type="button" (click)="addEvent()">
             <mat-icon>add</mat-icon>
             Add Override
           </button>

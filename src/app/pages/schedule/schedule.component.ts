@@ -1720,7 +1720,7 @@ export class ScheduleComponent {
     return e.source === 'manual' || e.source === 'override';
   }
 } THE ABOVE CODE WORKS BUT STILL NOT RED ON OVERRIDES IN CALENDAR
- */
+ *
 
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
@@ -1983,5 +1983,573 @@ export class ScheduleComponent {
 
   isManual(e: ScheduleEvent): boolean {
     return e.source === 'manual' || e.source === 'override';
+  }
+}
+ !!!!!! ADDING LOGIC TO CODE ABOVE TO AUTO REFRESH THE PAGE WITH ANY CALENDAR CHANGE !!!!!!
+ *
+
+ import { CommonModule, DatePipe } from '@angular/common';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule, MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
+
+import { ScheduleStore } from '../../data/schedule/schedule-store.service';
+import { ScheduleEvent, ScheduleEventType, ScheduleSettings } from '../../data/schedule/schedule.model';
+
+type Dow = { id: number; label: string };
+
+function startOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function endOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+@Component({
+  selector: 'app-schedule',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    DatePipe,
+
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSnackBarModule,
+    MatDatepickerModule,
+  ],
+  templateUrl: './schedule.component.html',
+  styleUrl: './schedule.component.scss',
+})
+export class ScheduleComponent {
+  private readonly store = inject(ScheduleStore);
+  private readonly snack = inject(MatSnackBar);
+  private readonly fb = inject(FormBuilder);
+
+  // ✅ grab the calendar instance so we can force redraw when data changes
+  @ViewChild(MatCalendar) private calendar?: MatCalendar<Date>;
+
+  // forces computeds to rerun (and helps keep day list in sync)
+  private readonly eventsTick = signal(0);
+
+  readonly dows: Dow[] = [
+    { id: 0, label: 'Sun' },
+    { id: 1, label: 'Mon' },
+    { id: 2, label: 'Tue' },
+    { id: 3, label: 'Wed' },
+    { id: 4, label: 'Thu' },
+    { id: 5, label: 'Fri' },
+    { id: 6, label: 'Sat' },
+  ];
+
+  readonly settings = signal<ScheduleSettings>(this.store.getSettings());
+  readonly selectedDate = signal<Date>(startOfDay(new Date()));
+
+  readonly overrideForm = this.fb.nonNullable.group({
+    type: this.fb.nonNullable.control<ScheduleEventType>('shift', [Validators.required]),
+    title: this.fb.nonNullable.control('Override', [Validators.required]),
+    startTime: this.fb.nonNullable.control('07:00', [Validators.required]),
+    endTime: this.fb.nonNullable.control('15:30'),
+    notes: this.fb.nonNullable.control(''),
+  });
+
+  readonly rangeEvents = computed(() => {
+    this.eventsTick(); // reactive
+
+    const s = this.settings();
+    const from = startOfDay(new Date());
+    const to = new Date(from);
+    to.setDate(to.getDate() + (s.generateDaysAhead ?? 90));
+    return this.store.getEventsInRange(from, to);
+  });
+
+  readonly dayEvents = computed(() => {
+    this.eventsTick(); // reactive
+
+    const dayStart = startOfDay(this.selectedDate());
+    const dayEnd = endOfDay(this.selectedDate());
+    return this.store.getEventsInRange(dayStart, dayEnd);
+  });
+
+  readonly daySummary = computed(() => {
+    const events = this.dayEvents();
+    return {
+      total: events.length,
+      shift: events.filter(e => e.type === 'shift').length,
+      call: events.filter(e => e.type === 'call').length,
+      payday: events.filter(e => e.type === 'payday').length,
+      off: events.filter(e => e.type === 'off').length,
+    };
+  });
+
+  // ✅ Any manual/override event makes the day RED (highest priority)
+  readonly dateClass: MatCalendarCellClassFunction<Date> = (date: Date, view) => {
+    if (view !== 'month') return '';
+
+    const dayStart = startOfDay(date).getTime();
+    const dayEnd = endOfDay(date).getTime();
+
+    const events = this.rangeEvents().filter(e => {
+      const t = new Date(e.startIso).getTime();
+      return t >= dayStart && t <= dayEnd;
+    });
+
+    if (!events.length) return '';
+
+    const hasOverride = events.some(e => e.source === 'manual' || e.source === 'override');
+    if (hasOverride) return 'cal-override';
+
+    const types = new Set(events.map(e => e.type));
+    if (types.has('payday')) return 'cal-payday';
+    if (types.has('call')) return 'cal-call';
+    if (types.has('shift')) return 'cal-shift';
+    if (types.has('off')) return 'cal-off';
+
+    return '';
+  };
+
+  // ✅ single place to keep UI in sync (calendar + computed lists)
+  private refreshCalendar(): void {
+    this.eventsTick.update(x => x + 1);
+
+    // MatCalendar doesn’t automatically re-run dateClass for all cells when data changes.
+    // This forces a re-render safely.
+    queueMicrotask(() => {
+      this.calendar?.updateTodaysDate();
+    });
+  }
+
+  // ---- template helper setters ----
+  setShiftStart(value: string): void {
+    const cur = this.settings();
+    this.settings.set({ ...cur, shiftTemplate: { ...cur.shiftTemplate, startTime: value || '' } });
+    this.refreshCalendar();
+  }
+
+  setShiftEnd(value: string): void {
+    const cur = this.settings();
+    this.settings.set({ ...cur, shiftTemplate: { ...cur.shiftTemplate, endTime: value || '' } });
+    this.refreshCalendar();
+  }
+
+  setCadenceDays(raw: string): void {
+    const cur = this.settings();
+    const n = parseInt(raw || '14', 10);
+    this.settings.set({
+      ...cur,
+      paydayRule: { ...cur.paydayRule, cadenceDays: Number.isFinite(n) && n > 0 ? n : 14 },
+    });
+    this.refreshCalendar();
+  }
+
+  setGenerateDaysAhead(raw: string): void {
+    const cur = this.settings();
+    const n = parseInt(raw || '90', 10);
+    this.settings.set({ ...cur, generateDaysAhead: Number.isFinite(n) && n > 0 ? n : 90 });
+    this.refreshCalendar();
+  }
+
+  selectDate(d: Date | null): void {
+    if (!d) return;
+    this.selectedDate.set(startOfDay(d));
+    // day list should update immediately too
+    this.refreshCalendar();
+  }
+
+  saveSettings(): void {
+    this.store.saveSettings(this.settings());
+    this.snack.open('Schedule settings saved (local).', 'OK', { duration: 2000 });
+    this.refreshCalendar();
+  }
+
+  toggleTemplateDay(dow: number): void {
+    const cur = this.settings();
+    const has = cur.shiftTemplate.daysOfWeek.includes(dow);
+    const nextDays = has
+      ? cur.shiftTemplate.daysOfWeek.filter(x => x !== dow)
+      : [...cur.shiftTemplate.daysOfWeek, dow].sort((a, b) => a - b);
+
+    this.settings.set({
+      ...cur,
+      shiftTemplate: { ...cur.shiftTemplate, daysOfWeek: nextDays },
+    });
+    this.refreshCalendar();
+  }
+
+  toggleCallDay(dow: number): void {
+    const cur = this.settings();
+    const has = cur.callDaysOfWeek.includes(dow);
+    const nextDays = has
+      ? cur.callDaysOfWeek.filter(x => x !== dow)
+      : [...cur.callDaysOfWeek, dow].sort((a, b) => a - b);
+
+    this.settings.set({ ...cur, callDaysOfWeek: nextDays });
+    this.refreshCalendar();
+  }
+
+  setAnchorPayday(dateStr: string): void {
+    if (!dateStr) return;
+    const cur = this.settings();
+    const d = new Date(dateStr);
+    this.settings.set({
+      ...cur,
+      paydayRule: { ...cur.paydayRule, anchorDateIso: startOfDay(d).toISOString() },
+    });
+    this.refreshCalendar();
+  }
+
+  prettyType(t: ScheduleEventType): string {
+    if (t === 'shift') return 'Shift';
+    if (t === 'call') return 'Call';
+    if (t === 'payday') return 'Payday';
+    return 'Off';
+  }
+
+  addOverride(): void {
+    if (this.overrideForm.invalid) {
+      this.overrideForm.markAllAsTouched();
+      return;
+    }
+
+    const v = this.overrideForm.getRawValue();
+    const base = startOfDay(this.selectedDate());
+
+    const start = new Date(base);
+    const [sh, sm] = v.startTime.split(':').map(n => parseInt(n, 10));
+    start.setHours(sh || 0, sm || 0, 0, 0);
+
+    let endIso: string | undefined;
+    if (v.endTime?.trim()) {
+      const end = new Date(base);
+      const [eh, em] = v.endTime.split(':').map(n => parseInt(n, 10));
+      end.setHours(eh || 0, em || 0, 0, 0);
+      if (end.getTime() <= start.getTime()) end.setDate(end.getDate() + 1);
+      endIso = end.toISOString();
+    }
+
+    this.store.upsertManualEvent({
+      type: v.type,
+      title: v.title.trim(),
+      startIso: start.toISOString(),
+      endIso,
+      notes: v.notes?.trim() || undefined,
+      source: 'manual',
+    });
+
+    this.refreshCalendar();
+    this.snack.open('Override saved.', 'OK', { duration: 1800 });
+  }
+
+  deleteEvent(id: string): void {
+    this.store.deleteManualEvent(id);
+    this.refreshCalendar();
+    this.snack.open('Removed manual event.', 'OK', { duration: 1800 });
+  }
+
+  isManual(e: ScheduleEvent): boolean {
+    return e.source === 'manual' || e.source === 'override';
+  }
+} 
+!!!!!!! THE ABOVE CODE TREATS THE EVENTS SUCH AS BEING SENT HOME OR STAYING LATE AS OVERRIDES THAT MESSES WITH LOGIC TOO MUCH !!!!!!!!
+*/
+
+// THIS CODE BELOW REMOVES OVERRIDE LOGIC AND JUST MAKES THE "OVERRIDES" JUST BE CALENDAR EVENTS THAT ARE ADDED MANUALLY
+
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule, MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
+
+import { ScheduleStore } from '../../data/schedule/schedule-store.service';
+import { ScheduleEvent, ScheduleEventType, ScheduleSettings } from '../../data/schedule/schedule.model';
+
+type Dow = { id: number; label: string };
+
+function startOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function endOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+@Component({
+  selector: 'app-schedule',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    DatePipe,
+
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSnackBarModule,
+    MatDatepickerModule,
+  ],
+  templateUrl: './schedule.component.html',
+  styleUrl: './schedule.component.scss',
+})
+export class ScheduleComponent {
+  private readonly store = inject(ScheduleStore);
+  private readonly snack = inject(MatSnackBar);
+  private readonly fb = inject(FormBuilder);
+
+  @ViewChild(MatCalendar) private calendar?: MatCalendar<Date>;
+
+  private readonly eventsTick = signal(0);
+
+  readonly dows: Dow[] = [
+    { id: 0, label: 'Sun' },
+    { id: 1, label: 'Mon' },
+    { id: 2, label: 'Tue' },
+    { id: 3, label: 'Wed' },
+    { id: 4, label: 'Thu' },
+    { id: 5, label: 'Fri' },
+    { id: 6, label: 'Sat' },
+  ];
+
+  readonly settings = signal<ScheduleSettings>(this.store.getSettings());
+  readonly selectedDate = signal<Date>(startOfDay(new Date()));
+
+  // ✅ Renamed: manual event form
+  readonly eventForm = this.fb.nonNullable.group({
+    type: this.fb.nonNullable.control<ScheduleEventType>('shift', [Validators.required]),
+    title: this.fb.nonNullable.control('Manual Event', [Validators.required]),
+    startTime: this.fb.nonNullable.control('07:00', [Validators.required]),
+    endTime: this.fb.nonNullable.control('15:30'),
+    notes: this.fb.nonNullable.control(''),
+  });
+
+  readonly rangeEvents = computed(() => {
+    this.eventsTick();
+
+    const s = this.settings();
+    const from = startOfDay(new Date());
+    const to = new Date(from);
+    to.setDate(to.getDate() + (s.generateDaysAhead ?? 90));
+    return this.store.getEventsInRange(from, to);
+  });
+
+  readonly dayEvents = computed(() => {
+    this.eventsTick();
+
+    const dayStart = startOfDay(this.selectedDate());
+    const dayEnd = endOfDay(this.selectedDate());
+    return this.store.getEventsInRange(dayStart, dayEnd);
+  });
+
+  readonly daySummary = computed(() => {
+    const events = this.dayEvents();
+    return {
+      total: events.length,
+      shift: events.filter(e => e.type === 'shift').length,
+      call: events.filter(e => e.type === 'call').length,
+      payday: events.filter(e => e.type === 'payday').length,
+      off: events.filter(e => e.type === 'off').length,
+    };
+  });
+
+  // ✅ Manual events (user-entered) color = red (highest priority)
+  readonly dateClass: MatCalendarCellClassFunction<Date> = (date: Date, view) => {
+    if (view !== 'month') return '';
+
+    const dayStart = startOfDay(date).getTime();
+    const dayEnd = endOfDay(date).getTime();
+
+    const events = this.rangeEvents().filter(e => {
+      const t = new Date(e.startIso).getTime();
+      return t >= dayStart && t <= dayEnd;
+    });
+
+    if (!events.length) return '';
+
+    const hasManual = events.some(e => e.source === 'manual');
+    if (hasManual) return 'cal-manual';
+
+    const types = new Set(events.map(e => e.type));
+    if (types.has('payday')) return 'cal-payday';
+    if (types.has('call')) return 'cal-call';
+    if (types.has('shift')) return 'cal-shift';
+    if (types.has('off')) return 'cal-off';
+
+    return '';
+  };
+
+  private refreshCalendar(): void {
+    this.eventsTick.update(x => x + 1);
+    queueMicrotask(() => this.calendar?.updateTodaysDate());
+  }
+
+  // ---- template helper setters ----
+  setShiftStart(value: string): void {
+    const cur = this.settings();
+    this.settings.set({ ...cur, shiftTemplate: { ...cur.shiftTemplate, startTime: value || '' } });
+    this.refreshCalendar();
+  }
+
+  setShiftEnd(value: string): void {
+    const cur = this.settings();
+    this.settings.set({ ...cur, shiftTemplate: { ...cur.shiftTemplate, endTime: value || '' } });
+    this.refreshCalendar();
+  }
+
+  setCadenceDays(raw: string): void {
+    const cur = this.settings();
+    const n = parseInt(raw || '14', 10);
+    this.settings.set({
+      ...cur,
+      paydayRule: { ...cur.paydayRule, cadenceDays: Number.isFinite(n) && n > 0 ? n : 14 },
+    });
+    this.refreshCalendar();
+  }
+
+  setGenerateDaysAhead(raw: string): void {
+    const cur = this.settings();
+    const n = parseInt(raw || '90', 10);
+    this.settings.set({ ...cur, generateDaysAhead: Number.isFinite(n) && n > 0 ? n : 90 });
+    this.refreshCalendar();
+  }
+
+  selectDate(d: Date | null): void {
+    if (!d) return;
+    this.selectedDate.set(startOfDay(d));
+    this.refreshCalendar();
+  }
+
+  saveSettings(): void {
+    this.store.saveSettings(this.settings());
+    this.snack.open('Schedule settings saved (local).', 'OK', { duration: 2000 });
+    this.refreshCalendar();
+  }
+
+  toggleTemplateDay(dow: number): void {
+    const cur = this.settings();
+    const has = cur.shiftTemplate.daysOfWeek.includes(dow);
+    const nextDays = has
+      ? cur.shiftTemplate.daysOfWeek.filter(x => x !== dow)
+      : [...cur.shiftTemplate.daysOfWeek, dow].sort((a, b) => a - b);
+
+    this.settings.set({
+      ...cur,
+      shiftTemplate: { ...cur.shiftTemplate, daysOfWeek: nextDays },
+    });
+    this.refreshCalendar();
+  }
+
+  toggleCallDay(dow: number): void {
+    const cur = this.settings();
+    const has = cur.callDaysOfWeek.includes(dow);
+    const nextDays = has
+      ? cur.callDaysOfWeek.filter(x => x !== dow)
+      : [...cur.callDaysOfWeek, dow].sort((a, b) => a - b);
+
+    this.settings.set({ ...cur, callDaysOfWeek: nextDays });
+    this.refreshCalendar();
+  }
+
+  setAnchorPayday(dateStr: string): void {
+    if (!dateStr) return;
+    const cur = this.settings();
+    const d = new Date(dateStr);
+    this.settings.set({
+      ...cur,
+      paydayRule: { ...cur.paydayRule, anchorDateIso: startOfDay(d).toISOString() },
+    });
+    this.refreshCalendar();
+  }
+
+  prettyType(t: ScheduleEventType): string {
+    if (t === 'shift') return 'Shift';
+    if (t === 'call') return 'Call';
+    if (t === 'payday') return 'Payday';
+    return 'Off';
+  }
+
+  // ✅ Renamed: add manual event
+  addEvent(): void {
+    if (this.eventForm.invalid) {
+      this.eventForm.markAllAsTouched();
+      return;
+    }
+
+    const v = this.eventForm.getRawValue();
+    const base = startOfDay(this.selectedDate());
+
+    const start = new Date(base);
+    const [sh, sm] = v.startTime.split(':').map(n => parseInt(n, 10));
+    start.setHours(sh || 0, sm || 0, 0, 0);
+
+    let endIso: string | undefined;
+    if (v.endTime?.trim()) {
+      const end = new Date(base);
+      const [eh, em] = v.endTime.split(':').map(n => parseInt(n, 10));
+      end.setHours(eh || 0, em || 0, 0, 0);
+      if (end.getTime() <= start.getTime()) end.setDate(end.getDate() + 1);
+      endIso = end.toISOString();
+    }
+
+    this.store.upsertManualEvent({
+      type: v.type,
+      title: v.title.trim(),
+      startIso: start.toISOString(),
+      endIso,
+      notes: v.notes?.trim() || undefined,
+      source: 'manual',
+    });
+
+    this.refreshCalendar();
+    this.snack.open('Event added.', 'OK', { duration: 1800 });
+  }
+
+  deleteEvent(id: string): void {
+    this.store.deleteManualEvent(id);
+    this.refreshCalendar();
+    this.snack.open('Event removed.', 'OK', { duration: 1800 });
+  }
+
+  // ✅ Manual means user-entered
+  isManual(e: ScheduleEvent): boolean {
+    return e.source === 'manual';
   }
 }
