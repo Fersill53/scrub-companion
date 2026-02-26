@@ -1,3 +1,4 @@
+<!--
 <mat-sidenav-container class="shell">
   <mat-sidenav class="shell__sidenav" [opened]="isSidenavOpen()" mode="side">
     <div class="brand">
@@ -47,6 +48,138 @@
       <a mat-button routerLink="/profile">
         <mat-icon>person</mat-icon>
         Profile
+      </a>
+    </mat-toolbar>
+
+    <main class="page">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+-->
+
+<!-- MAKING IT MOBILE ACCESSIBLE 
+
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    #sidenav
+    class="shell__sidenav"
+    [opened]="isSidenavOpen()"
+    [mode]="sidenavMode()"
+  >
+    <div class="brand">
+      <mat-icon class="brand__icon">local_hospital</mat-icon>
+      <div class="brand__text">
+        <div class="brand__title">{{ appTitle }}</div>
+        <div class="brand__sub">Personal OR assistant</div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-nav-list>
+      @for (item of nav; track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          (click)="onNavClick()"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <div class="shell__footer">
+      <small>Local-first • Built for scrub tech workflows</small>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <mat-toolbar color="primary" class="toolbar">
+      <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="toolbar__title">{{ appTitle }}</span>
+
+      <span class="toolbar__spacer"></span>
+
+      <a mat-button routerLink="/search" class="toolbar__link">
+        <mat-icon>search</mat-icon>
+        <span class="hideOnMobile">Search</span>
+      </a>
+
+      <a mat-button routerLink="/profile" class="toolbar__link">
+        <mat-icon>person</mat-icon>
+        <span class="hideOnMobile">Profile</span>
+      </a>
+    </mat-toolbar>
+
+    <main class="page">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container> -->
+
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    #sidenav
+    class="shell__sidenav"
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpen()"
+    (openedChange)="onOpenedChange($event)"
+  >
+    <div class="brand">
+      <mat-icon class="brand__icon">local_hospital</mat-icon>
+      <div class="brand__text">
+        <div class="brand__title">{{ appTitle }}</div>
+        <div class="brand__sub">Personal OR assistant</div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-nav-list>
+      @for (item of nav; track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          (click)="onNavClick()"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <div class="shell__footer">
+      <small>Local-first • Built for scrub tech workflows</small>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <mat-toolbar color="primary" class="toolbar">
+      <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="toolbar__title">{{ appTitle }}</span>
+
+      <span class="toolbar__spacer"></span>
+
+      <a mat-button routerLink="/search" class="toolbar__link">
+        <mat-icon>search</mat-icon>
+        <span class="hideOnMobile">Search</span>
+      </a>
+
+      <a mat-button routerLink="/profile" class="toolbar__link">
+        <mat-icon>person</mat-icon>
+        <span class="hideOnMobile">Profile</span>
       </a>
     </mat-toolbar>
 

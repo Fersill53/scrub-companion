@@ -4,39 +4,50 @@
 
 .shell__sidenav {
   width: 280px;
-  padding: 12px 8px;
-}
+  display: flex;
+  flex-direction: column;
 
-.shell__content {
-  height: 100vh;
+  @media (max-width: 700px) {
+    width: 86vw;
+    max-width: 320px;
+  }
 }
 
 .brand {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 14px 16px;
+}
 
-  &__icon {
-    width: 28px;
-    height: 28px;
-    font-size: 28px;
-  }
+.brand__icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
 
-  &__title {
-    font-weight: 700;
-    line-height: 1.1;
-  }
+.brand__title {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.1;
+}
 
-  &__sub {
-    opacity: 0.75;
-    font-size: 12px;
-  }
+.brand__sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 2px;
 }
 
 .shell__footer {
-  padding: 12px;
+  margin-top: auto;
+  padding: 12px 16px;
   opacity: 0.7;
+}
+
+.shell__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .toolbar {
@@ -44,23 +55,41 @@
   top: 0;
   z-index: 10;
 
-  &__title {
-    margin-left: 12px;
-    font-weight: 600;
-  }
+  display: flex;
+  gap: 8px;
+}
 
-  &__spacer {
-    flex: 1;
+.toolbar__title {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.toolbar__spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar__link mat-icon {
+  margin-right: 6px;
+}
+
+.hideOnMobile {
+  @media (max-width: 600px) {
+    display: none;
   }
 }
 
 .page {
   padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
+  overflow: auto;
+  height: calc(100vh - 64px);
+
+  @media (max-width: 600px) {
+    padding: 10px;
+    height: calc(100vh - 56px);
+  }
 }
 
-/* This class is applied via routerLinkActive, scoped to this component */
-.is-active {
-  font-weight: 600;
+/* Active nav styling */
+:host ::ng-deep .is-active {
+  font-weight: 700;
 }
